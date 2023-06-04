@@ -134,7 +134,7 @@
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
-                                        <input type="text" class="form-control" placeholder="Batch Name" id="filter-name" on:keyup={() => filterBatch()}>
+										<input type="text" class="form-control" placeholder="Batch Name" id="filter-name" on:keyup={() => filterBatch()}>
                                     </div>
                                     <div class="input-group">
                                         <select id="filter-status" class="form-select" on:change={() => filterBatch()}>
@@ -179,7 +179,7 @@
 													event.stopPropagation()
 													window.location.href = `/super-admin/batch/edit/${b.id}`
 												}}>Edit</button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" on:click={() => {
+                                                <button type="button" class="btn btn-sm btn-outline-danger" on:click={(event) => {
 													event.stopPropagation()
 													deleteBatch(b.id)
 												}}>Delete</button>

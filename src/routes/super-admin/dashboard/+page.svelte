@@ -33,113 +33,113 @@
 	});
 </script>
 
-{#if loginStatus && dashboardData}
-	<div class="d-flex h-100">
-		<Sidebar activePage="dashboard" />
-		<div class="w-100 d-flex flex-column">
-			<Navbar />
-			<div class="wrapper">
-				<div class="container-xxl flex-grow-1 container-p-y">
-					<h4 class="fw-bold py-3 mb-4">
-						Dashboard
-					</h4>
-					<div class="row">
-						<div class="col-lg-12 col-md-6 col-12">
-							<div class="row">
-								<div class="col-lg-2 col-md-2 col-6 mb-4">
-									<div class="card">
-										<div class="card-body">
-											<div class="card-title d-flex align-items-start justify-content-between">
-												<div class="avatar flex-shrink-0">
-													<img
-														src="/img/icons/unicons/chart-success.png"
-														alt="chart success"
-														class="rounded"
-													/>
-												</div>
+
+<div class="d-flex h-100">
+	<Sidebar activePage="dashboard" />
+	<div class="w-100 d-flex flex-column">
+		<Navbar />
+		<div class="wrapper">
+			<div class="container-xxl flex-grow-1 container-p-y">
+				<h4 class="fw-bold py-3 mb-4">
+					Dashboard
+				</h4>
+				{#if loginStatus && dashboardData}
+				<div class="row">
+					<div class="col-lg-12 col-md-6 col-12">
+						<div class="row">
+							<div class="col-lg-2 col-md-2 col-6 mb-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="card-title d-flex align-items-start justify-content-between">
+											<div class="avatar flex-shrink-0">
+												<img
+													src="/img/icons/unicons/chart-success.png"
+													alt="chart success"
+													class="rounded"
+												/>
 											</div>
-											<span class="fw-semibold d-block mb-1">Batch Total</span>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <h3 class="card-title mb-2">{dashboardData.total_batch < 10 ? '0' + dashboardData.total_batch : dashboardData.total_batch}</h3><span class="fw-light d-block mb-1">Batches</span>
-                                            </div>
+										</div>
+										<span class="fw-semibold d-block mb-1">Batch Total</span>
+										<div class="d-flex align-items-center gap-2">
+											<h3 class="card-title mb-2">{dashboardData.total_batch < 10 ? '0' + dashboardData.total_batch : dashboardData.total_batch}</h3><span class="fw-light d-block mb-1">Batches</span>
 										</div>
 									</div>
 								</div>
-                                <div class="col-lg-2 col-md-2 col-6 mb-4">
-									<div class="card">
-										<div class="card-body">
-											<div class="card-title d-flex align-items-start justify-content-between">
-												<div class="avatar flex-shrink-0">
-													<img
-														src="/img/icons/unicons/chart-success.png"
-														alt="chart success"
-														class="rounded"
-													/>
-												</div>
-                                                <span class="fw-light d-block mb-1">{dashboardData.ongoing_batch}</span>
+							</div>
+							<div class="col-lg-2 col-md-2 col-6 mb-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="card-title d-flex align-items-start justify-content-between">
+											<div class="avatar flex-shrink-0">
+												<img
+													src="/img/icons/unicons/chart-success.png"
+													alt="chart success"
+													class="rounded"
+												/>
 											</div>
-											<span class="fw-semibold d-block mb-1">Batch Countdown</span>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <h3 class="card-title mb-2">{dashboardData.countdown_ongoing_batch}</h3><span class="fw-light d-block mb-1">Days Remaining</span>
-                                            </div>
+											<span class="fw-light d-block mb-1">{dashboardData.ongoing_batch}</span>
+										</div>
+										<span class="fw-semibold d-block mb-1">Batch Countdown</span>
+										<div class="d-flex align-items-center gap-2">
+											<h3 class="card-title mb-2">{dashboardData.countdown_ongoing_batch}</h3><span class="fw-light d-block mb-1">Days Remaining</span>
 										</div>
 									</div>
 								</div>
-                                <div class="col-lg-2 col-md-2 col-6 mb-4">
-									<div class="card">
-										<div class="card-body">
-											<div class="card-title d-flex align-items-start justify-content-between">
-												<div class="avatar flex-shrink-0">
-													<img
-														src="/img/icons/unicons/chart-success.png"
-														alt="chart success"
-														class="rounded"
-													/>
-												</div>
-                                                <span class="fw-light d-block mb-1">Batch 01</span>
+							</div>
+							<div class="col-lg-2 col-md-2 col-6 mb-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="card-title d-flex align-items-start justify-content-between">
+											<div class="avatar flex-shrink-0">
+												<img
+													src="/img/icons/unicons/chart-success.png"
+													alt="chart success"
+													class="rounded"
+												/>
 											</div>
-											<span class="fw-semibold d-block mb-1">Ongoing Programs</span>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <h3 class="card-title mb-2">01</h3><span class="fw-light d-block mb-1">Programs</span>
-                                            </div>
+											<span class="fw-light d-block mb-1">Batch 01</span>
+										</div>
+										<span class="fw-semibold d-block mb-1">Ongoing Programs</span>
+										<div class="d-flex align-items-center gap-2">
+											<h3 class="card-title mb-2">{dashboardData.ongoing_program < 10 ? '0' + dashboardData.ongoing_program : dashboardData.ongoing_program}</h3><span class="fw-light d-block mb-1">Programs</span>
 										</div>
 									</div>
 								</div>
-                                <div class="col-lg-2 col-md-2 col-6 mb-4">
-									<div class="card">
-										<div class="card-body">
-											<div class="card-title d-flex align-items-start justify-content-between">
-												<div class="avatar flex-shrink-0">
-													<img
-														src="/img/icons/unicons/chart-success.png"
-														alt="chart success"
-														class="rounded"
-													/>
-												</div>
+							</div>
+							<div class="col-lg-2 col-md-2 col-6 mb-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="card-title d-flex align-items-start justify-content-between">
+											<div class="avatar flex-shrink-0">
+												<img
+													src="/img/icons/unicons/chart-success.png"
+													alt="chart success"
+													class="rounded"
+												/>
 											</div>
-											<span class="fw-semibold d-block mb-1">Mentor Total</span>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <h3 class="card-title mb-2">05</h3><span class="fw-light d-block mb-1">Mentors</span>
-                                            </div>
+										</div>
+										<span class="fw-semibold d-block mb-1">Mentor Total</span>
+										<div class="d-flex align-items-center gap-2">
+											<h3 class="card-title mb-2">05</h3><span class="fw-light d-block mb-1">Mentors</span>
 										</div>
 									</div>
 								</div>
-                                <div class="col-lg-2 col-md-2 col-6 mb-4">
-									<div class="card">
-										<div class="card-body">
-											<div class="card-title d-flex align-items-start justify-content-between">
-												<div class="avatar flex-shrink-0">
-													<img
-														src="/img/icons/unicons/chart-success.png"
-														alt="chart success"
-														class="rounded"
-													/>
-												</div>
+							</div>
+							<div class="col-lg-2 col-md-2 col-6 mb-4">
+								<div class="card">
+									<div class="card-body">
+										<div class="card-title d-flex align-items-start justify-content-between">
+											<div class="avatar flex-shrink-0">
+												<img
+													src="/img/icons/unicons/chart-success.png"
+													alt="chart success"
+													class="rounded"
+												/>
 											</div>
-											<span class="fw-semibold d-block mb-1">Active Mentees</span>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <h3 class="card-title mb-2">83</h3><span class="fw-light d-block mb-1">Mentees</span>
-                                            </div>
+										</div>
+										<span class="fw-semibold d-block mb-1">Active Mentees</span>
+										<div class="d-flex align-items-center gap-2">
+											<h3 class="card-title mb-2">83</h3><span class="fw-light d-block mb-1">Mentees</span>
 										</div>
 									</div>
 								</div>
@@ -147,7 +147,8 @@
 						</div>
 					</div>
 				</div>
+				{/if}
 			</div>
 		</div>
 	</div>
-{/if}
+</div>
