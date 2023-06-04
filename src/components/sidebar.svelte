@@ -51,6 +51,12 @@
 					<div>Mentees</div>
 				</a>
 			</li>
+			<li class="menu-item {activePage == "group" ? 'active' : ''}">
+				<a href="/super-admin/group" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-file" />
+					<div>Groups</div>
+				</a>
+			</li>
 		</ul>
 	</div>
 </aside>
