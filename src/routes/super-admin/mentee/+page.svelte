@@ -36,6 +36,36 @@
         })
     }
 
+    let deleteMentee = menteeId => {
+        ApiController({
+            method:"POST",
+            endpoint:`mentee/delete`,
+            datas:{mentee_id : menteeId}
+        }).then(response => {
+            if(response?.data.msg == "success"){
+                alert(`Mentee Deleted!`)
+                window.location.href = '/super-admin/mentee'
+            }
+        })
+    }
+
+    let excelToDb = () => {
+        let formdata = new FormData()
+        formdata.append('excel_file', jquery('#import-excel').prop('files')[0])
+
+        ApiController({
+            method:'POST',
+            endpoint:'mentee/create/from-excel',
+            datas:formdata,
+            sendForm:true
+        }).then(response => {
+            if(response?.data.msg == 'success'){
+                alert(`Mentees Created!`)
+                window.location.href = '/super-admin/mentee'
+            }
+        })
+    }
+
     onMount(async () => {
         getMentees()
     })
@@ -52,7 +82,7 @@
 				</h4>
                 {#if status}
                 <div class="row">
-                    <div class="col-lg-2 col-md-2 col-6 mb-4">
+                    <div class="col-lg-2 col-md-4 col-6 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <div class="card-title d-flex align-items-start justify-content-between">
@@ -71,7 +101,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-md-2 col-6 mb-4">
+                    <div class="col-lg-2 col-md-4 col-6 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <div class="card-title d-flex align-items-start justify-content-between">
@@ -101,6 +131,12 @@
                                         <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
 										<input type="text" class="form-control" placeholder="Mentee Name" id="filter-name">
                                     </div>
+                                    <button type="button" class="btn btn-outline-secondary text-nowrap" on:click={() => jquery('#import-excel').click()}>
+                                        <span class="tf-icons bx bxs-file-import me-1"></span>From Excel
+                                        <input type="file" id="import-excel" class="d-none" on:change={() => {
+                                            excelToDb()
+                                        }} accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                                    </button>
                                     <button type="button" class="btn btn-primary text-nowrap" on:click={() => window.location.href = '/super-admin/mentee/create'}>
                                         <span class="tf-icons bx bx-plus me-1"></span>Mentee
                                     </button>
@@ -110,7 +146,8 @@
 								<table class="table table-hover">
 									<thead>
 										<tr class="text-nowrap">
-											<th>ID</th>
+											<th>No</th>
+											<th>MSIB ID</th>
 											<th>Name</th>
 											<th>Gender</th>
 											<th>University</th>
@@ -118,16 +155,18 @@
 											<th>Semester</th>
                                             <th>Email</th>
                                             <th>Phone</th>
+                                            <th>Group Name</th>
                                             <th>Status</th>
-                                            <th>Action</th>
+                                            <th class="text-center">Action</th>
 										</tr>
 									</thead>
 									<tbody>
                                     {#if menteesList.length > 0}
-                                    {#each menteesList as m}
+                                    {#each menteesList as m, i}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                     <tr id="data-{m.id}" on:click={() => window.location.href = `/super-admin/mentee/detail/${m.id}`}
                                         on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
+                                        <td class="text-center">{i+1}</td>
                                         <td>{m.id}</td>
                                         <td>{m.name}</td>
                                         <td class="text-center">{m.gender}</td>
@@ -136,13 +175,19 @@
                                         <td class="text-center">{m.semester}</td>
                                         <td>{m.email}</td>
                                         <td>{m.phone}</td>
+                                        <td class="text-center {m.group_name == null ? 'text-danger' : ''}">
+                                            {m.group_name == null ? 'Not Assign Yet' : m.group_name}
+                                        </td>
                                         <td class="text-center {m.status == 'Active' ? 'text-success' : 'text-danger'}">{m.status}</td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-warning" on:click={(event) => {
                                                 event.stopPropagation()
                                                 window.location.href = `/super-admin/mentee/edit/${m.id}`
                                             }}>Edit</button>
-                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                            <button class="btn btn-sm btn-outline-danger" on:click={(event) => {
+                                                event.stopPropagation()
+                                                deleteMentee(m.id)
+                                            }}>Delete</button>
                                         </td>
                                     </tr>
                                     {/each}
