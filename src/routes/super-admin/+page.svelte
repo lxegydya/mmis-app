@@ -1,9 +1,16 @@
 <script>
+// @ts-nocheck
+
 	import { onMount } from 'svelte';
 	import ApiController from '../../ApiController';
 	import jQuery from 'jquery'
 
+	let loginState = null
+	let loginStatus = false;
+
 	let doLogin = () => {
+		loginState = "start"
+
 		let formdata = new FormData()
 		formdata.append('role', 'admin')
 		formdata.append('email', jQuery('#email').val())
@@ -14,6 +21,7 @@
 			endpoint: `login`,
 			datas: formdata
 		}).then(response => {
+			loginState = "done"
 			// @ts-ignore
 			let data = response.data.data
 			if(data.login_permission == "granted"){
@@ -27,6 +35,14 @@
 			}
 		})
 	}
+
+	onMount(async () => {
+		let loginData = JSON.parse(window.localStorage.getItem('login-data'));
+		if (loginData) {
+			loginStatus = true;
+			window.location.href = '/super-admin/dashboard';
+		}
+	})
 </script>
 
 <div class="container-xxl">
@@ -74,7 +90,19 @@
 					<div class="mb-3">
 						<button class="btn btn-primary d-grid w-100" on:click={() => {
 							doLogin()
-						}}>Sign in</button>
+						}}>
+						{#if loginState == null}
+						Sign in
+						{:else if loginState == 'start'}
+						<div class="d-flex justify-content-center align-items-center">
+							<div class="spinner-border spinner-border-sm" role="status" style="color: #fff;">
+								<span class="visually-hidden">Loading...</span>
+							</div>
+						</div>
+						{:else}
+						Sign in
+						{/if}
+						</button>
 					</div>
 				</div>
 			</div>

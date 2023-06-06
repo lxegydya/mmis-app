@@ -5,3 +5,20 @@ html{
 body{
     height: 100% !important;
 }
+
+.group-cap-img{
+    height: 350px;
+    object-fit: cover;
+}
+
+.btn-whatsapp{
+    color: #fff;
+    background-color: #25D366;
+    border-color: rgb(53, 186, 171);
+}
+
+.btn-email{
+    color: #fff;
+    background-color: #DA202A;
+    border-color: #f04f57;
+}
