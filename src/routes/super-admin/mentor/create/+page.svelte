@@ -57,7 +57,7 @@
 					> Create
 				</h4>
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-md-12 col-lg-6">
 						<div class="card mb-4">
 							<div class="card-header d-flex justify-content-between align-items-center">
 								<h5 class="mb-0">Create Meentor</h5>
