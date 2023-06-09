@@ -57,6 +57,18 @@
 					<div>Groups</div>
 				</a>
 			</li>
+			<li class="menu-item {activePage == "activity" ? 'active' : ''}">
+				<a href="/super-admin/activity" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-file" />
+					<div>Activities</div>
+				</a>
+			</li>
+			<li class="menu-item {activePage == "absence" ? 'active' : ''}">
+				<a href="/super-admin/absence" class="menu-link">
+					<i class="menu-icon tf-icons bx bx-file" />
+					<div>Absences</div>
+				</a>
+			</li>
 		</ul>
 	</div>
 </aside>
