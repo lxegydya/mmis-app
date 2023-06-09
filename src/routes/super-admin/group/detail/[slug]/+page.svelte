@@ -57,6 +57,11 @@
     })
 </script>
 
+<svelte:head>
+	<title>Groups | Detail</title>
+	<html lang="en" />
+</svelte:head>
+
 <div class="d-flex h-100">
 	<Sidebar activePage="group" />
 	<div class="w-100 d-flex flex-column">

@@ -34,6 +34,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Dashboard</title>
+	<html lang="en" />
+</svelte:head>
 
 <div class="d-flex h-100">
 	<Sidebar activePage="dashboard" />

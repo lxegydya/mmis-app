@@ -39,6 +39,11 @@
     })
 </script>
 
+<svelte:head>
+	<title>Programs | Create</title>
+	<html lang="en" />
+</svelte:head>
+
 <div class="d-flex h-100">
 	<Sidebar activePage="program" />
 	<div class="w-100 d-flex flex-column">

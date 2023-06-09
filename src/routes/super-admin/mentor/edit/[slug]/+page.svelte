@@ -71,6 +71,11 @@
     })
 </script>
 
+<svelte:head>
+	<title>Mentors | Edit</title>
+	<html lang="en" />
+</svelte:head>
+
 <div class="d-flex h-100">
 	<Sidebar activePage="mentor" />
 	<div class="w-100 d-flex flex-column">

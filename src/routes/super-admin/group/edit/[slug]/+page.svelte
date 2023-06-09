@@ -6,3 +6,8 @@
 
     console.log(data)
 </script>
+
+<svelte:head>
+	<title>Groups | Edit</title>
+	<html lang="en" />
+</svelte:head>

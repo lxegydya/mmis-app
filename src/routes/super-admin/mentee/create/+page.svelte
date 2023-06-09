@@ -44,6 +44,11 @@
     }
 </script>
 
+<svelte:head>
+	<title>Mentees | Create</title>
+	<html lang="en" />
+</svelte:head>
+
 <div class="d-flex h-100">
 	<Sidebar activePage="mentee" />
 	<div class="w-100 d-flex flex-column">
