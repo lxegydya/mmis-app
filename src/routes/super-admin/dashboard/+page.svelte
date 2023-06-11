@@ -7,7 +7,6 @@
 	import jquery from 'jquery';
 	import ApiController from '../../../ApiController';
 
-	let loginStatus = false;
 	let status = false
 	let dashboardData = null
 
@@ -24,10 +23,8 @@
 	onMount(async () => {
 		// @ts-ignore
 		let loginData = JSON.parse(window.localStorage.getItem('login-data'));
-		if (loginData) {
-			loginStatus = true;
-		} else {
-			window.location.href = '/';
+		if (!loginData) {
+			window.location.href = '/super-admin';
 		}
 
 		getDashboard()
@@ -56,7 +53,7 @@
 				<h4 class="fw-bold py-3 mb-4">
 					Dashboard
 				</h4>
-				{#if loginStatus && dashboardData}
+				{#if status}
 				<div class="row">
 					<div class="col-lg-2 col-md-4 col-6 mb-4">
 						<div class="card">
