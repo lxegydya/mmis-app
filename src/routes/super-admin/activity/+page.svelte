@@ -102,7 +102,7 @@
 										</tr>
 									</thead>
                                     <tbody>
-                                        {#each data.activities as a, i}
+                                        {#each data.activities.sort((a,b) => new Date(a.date) - new Date(b.date)) as a, i}
                                         <tr>
                                             <td>{i+1}</td>
                                             <td>{a.name}</td>
