@@ -13,13 +13,20 @@
     let activeMenteesTotal = null
     let status = false
 
+    let currentPage = 1
+
     let getMentees = () => {
         ApiController({
             method: "GET",
             endpoint: `mentees`
         }).then(response => {
-            menteesReal = response?.data.data.mentees
-            menteesList = response?.data.data.mentees
+            menteesReal = response?.data.data.mentees.sort((a, b) => a.name < b.name ? -1 : 1)
+            menteesReal.forEach((m, i) => {
+                m.numbering = ++i
+            })
+
+            menteesList = menteesReal
+
             menteesTotal = response?.data.data.mentees_total
             activeMenteesTotal = response?.data.data.active_mentees
             status = true
@@ -67,7 +74,20 @@
                 m.university.toLowerCase().includes(targetUniversity)
         })
 
+        tempMentees.forEach((m, i) => {
+            m.numbering = ++i
+        })
+
         menteesList = tempMentees
+    }
+
+    let pagination = (dataReal, index) => {
+        let tempData = dataReal
+        let start = index == 1 ? 0 : (index - 1) * 10
+        let end = index * 10
+        
+        tempData = tempData.slice(start, end)
+        return tempData
     }
 
     onMount(async () => {
@@ -175,11 +195,11 @@
 									</thead>
 									<tbody>
                                     {#if menteesList.length > 0}
-                                    {#each menteesList.sort((a,b) => a.name < b.name ? -1 : 1) as m, i}
+                                    {#each pagination(menteesList, currentPage) as m}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                     <tr id="data-{m.id}" on:click={() => window.location.href = `/super-admin/mentee/detail/${m.id}`}
                                         on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
-                                        <td class="text-center">{i+1}</td>
+                                        <td class="text-center">{m.numbering}</td>
                                         <td>{m.id}</td>
                                         <td>{m.name}</td>
                                         <td class="text-center">{m.gender}</td>
@@ -210,6 +230,50 @@
                             </div>
                         </div>
                     </div>
+                    {#if menteesList.length > 10}
+                    <nav aria-label="Page navigation" class="mt-3">
+                        <ul class="pagination justify-content-end">
+                            {#if currentPage > 3}
+                            <li class="page-item prev">
+                                <button class="page-link" on:click={() => {
+                                    currentPage = 1
+                                }}><i class="tf-icon bx bx-chevrons-left"></i></button>
+                            </li>
+                            {/if}
+                            {#if currentPage >= Math.ceil(menteesList.length/10)}
+                            <li class="page-item">
+                                <button class="page-link" on:click={() => {
+                                    currentPage = currentPage - 2
+                                }}>{currentPage-2}</button>
+                            </li>
+                            {/if}
+                            {#if currentPage > 1}
+                            <li class="page-item">
+                                <button class="page-link" on:click={() => {
+                                    currentPage = currentPage - 1
+                                }}>{currentPage-1}</button>
+                            </li>
+                            {/if}
+                            <li class="page-item active">
+                                <button class="page-link">{currentPage}</button>
+                            </li>
+                            {#if currentPage < Math.ceil(menteesList.length/10)}
+                            <li class="page-item">
+                                <button class="page-link" on:click={() => {
+                                    currentPage = currentPage + 1
+                                }}>{currentPage+1}</button>
+                            </li>
+                            {/if}
+                            {#if currentPage + 2 <= Math.ceil(menteesList.length/10)}
+                            <li class="page-item next">
+                                <button class="page-link" on:click={() => {
+                                    currentPage = Math.ceil(menteesList.length/10)
+                                }}><i class="tf-icon bx bx-chevrons-right"></i></button>
+                            </li>
+                            {/if}
+                        </ul>
+                    </nav>
+                    {/if}
                 </div>
                 {/if}
             </div>
