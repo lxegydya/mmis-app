@@ -6,7 +6,6 @@
 	import jQuery from 'jquery'
 
 	let loginState = null
-	let loginStatus = false;
 
 	let doLogin = () => {
 		loginState = "start"
@@ -39,7 +38,6 @@
 	onMount(async () => {
 		let loginData = JSON.parse(window.localStorage.getItem('login-data'));
 		if (loginData) {
-			loginStatus = true;
 			window.location.href = '/super-admin/dashboard';
 		}
 	})
