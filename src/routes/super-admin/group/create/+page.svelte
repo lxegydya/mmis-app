@@ -13,6 +13,7 @@
     let programs = null
     let mentors = null
     let mentees = null
+    let menteesReal = null
 
     let statusOne = false
     let statusTwo = false
@@ -82,6 +83,7 @@
                 endpoint:`mentee/not-in-group`
             }).then(response => {
                 mentees = response.data.data
+                menteesReal = response.data.data
                 currentStep = 4
                 statusFour = true
             })
@@ -107,6 +109,18 @@
                 window.location.href = '/super-admin/group'
             }
         })
+    }
+
+    let filterMentee = () => {
+        mentees = menteesReal
+        let tempMentees = mentees
+        let target = jquery('#filter-name').val().toLowerCase()
+
+        tempMentees = tempMentees.filter(m => {
+            return m.name.toLowerCase().includes(target)
+        })
+
+        mentees = tempMentees
     }
 
     onMount(async () => {
@@ -288,6 +302,14 @@
 						<div class="card">
                             <div class="d-flex align-items-center justify-content-between">
                                 <h5 class="card-header">Mentees</h5>
+                                <div class="card-header d-flex flex-row align-items-center gap-3">
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text" id="filter-name-label"><i class="bx bx-search"></i></span>
+                                        <input type="text" class="form-control" placeholder="Mentee Name" id="filter-name" on:keyup={() => {
+                                            filterMentee()
+                                        }}>
+                                    </div>
+                                </div>
                             </div>
                             <div class="table-responsive text-nowrap">
 								<table class="table table-hover">
@@ -307,7 +329,7 @@
 									<tbody>
                                     {#if statusFour}
                                     {#if mentees.length > 0}
-                                    {#each mentees as m}
+                                    {#each mentees.sort((a,b) => a.name < b.name ? -1 : 1) as m}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                     <tr id="data-{m.id}" class="{selectedMentee.includes(m) ? 'table-success' : ''}" on:click={() => {
                                             if(selectedMentee.includes(m)){

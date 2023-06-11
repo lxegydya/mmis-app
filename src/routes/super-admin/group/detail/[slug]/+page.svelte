@@ -10,6 +10,8 @@
     export let data
 
     let group = null
+    let menteesReal = null
+    let mentees = null
     let status = false
 
     let getGroup = () => {
@@ -18,23 +20,10 @@
             endpoint:`group/${data.params.slug}`
         }).then(response => {
             group = response?.data.data
-            group.mentees = sortData(group.mentees)
+            menteesReal = response.data.data.mentees
+            mentees = response.data.data.mentees
             status = true
         })
-    }
-
-    let sortData = (data) => {
-        let menteesList = data
-        menteesList = menteesList.sort((a,b) => {
-            let x = a.name.toLowerCase()
-            let y = b.name.toLowerCase()
-
-            if(x>y){return 1}
-            if(x<y){return -1}
-            return 0
-        })
-
-        return menteesList
     }
 
     let kickMentee = (mentee_id) => {
@@ -50,6 +39,18 @@
                 alert('Mentee Kicked!')
             }
         })
+    }
+
+    let filterMentee = () => {
+        mentees = menteesReal
+        let tempMentees = mentees
+        let targetName = jquery('#filter-name').val().toLowerCase()
+
+        tempMentees = tempMentees.filter(m => {
+            return m.name.toLowerCase().includes(targetName)
+        })
+
+        mentees = tempMentees
     }
 
     onMount(async () => {
@@ -110,10 +111,10 @@
                                 <h6 class="card-subtitle text-muted">{group.mentor_skill}</h6>
                                 <img class="img-fluid d-flex mx-auto my-4" src="http://127.0.0.1/mmis-api/public/{group.mentor_image}" alt="Card image cap">
                                 <div class="d-flex gap-2">
-                                    <a href="https://wa.me/6{group.mentor_phone}" class="btn btn-whatsapp text-nowrap form-control">
+                                    <a href="https://wa.me/6{group.mentor_phone}" target="_blank" class="btn btn-whatsapp text-nowrap form-control">
                                         <span class="tf-icons bx bxl-whatsapp"></span>&nbsp; Whatsapp
                                     </a>
-                                    <a href="mailto:{group.mentor_email}" class="btn btn-email text-nowrap form-control">
+                                    <a href="mailto:{group.mentor_email}" target="_blank" class="btn btn-email text-nowrap form-control">
                                         <span class="tf-icons bx bx-envelope"></span>&nbsp; Email
                                     </a>
                                 </div>
@@ -127,7 +128,7 @@
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
-										<input type="text" class="form-control" placeholder="Mentee Name" id="filter-name">
+										<input type="text" class="form-control" placeholder="Mentee Name" id="filter-name" on:keyup={() => {filterMentee()}}>
                                     </div>
                                     <button type="button" class="btn btn-primary text-nowrap" on:click={() => window.location.href = `/super-admin/group/assign/${group.id}`}>
                                         <span class="tf-icons bx bx-plus me-1"></span>Assign
@@ -150,8 +151,8 @@
 										</tr>
 									</thead>
 									<tbody>
-                                    {#if group.mentees.length > 0}
-                                    {#each group.mentees as m, i}
+                                    {#if mentees.length > 0}
+                                    {#each mentees.sort((a,b) => a.name < b.name ? -1 : 1) as m, i}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                     <tr id="data-{m.id}" on:click={() => window.location.href = `/super-admin/mentee/detail/${m.id}`}
                                         on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
