@@ -10,9 +10,9 @@
 	<div class="position-fixed h-100">
 		<div class="app-brand demo">
 			<a href="/super-admin/dashboard" class="app-brand-link">
-				<span class="app-brand-text demo menu-text fw-bolder ms-2">MMIS</span>
+				<span class="app-brand-text demo menu-text fw-bolder">MMIS</span>
 			</a>
-			<a href="/super-admin/dashboard" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+			<a href="#" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
 				<i class="bx bx-chevron-left bx-sm align-middle" />
 			</a>
 		</div>
@@ -23,49 +23,49 @@
 			<!-- Dashboard -->
 			<li class="menu-item {activePage == "dashboard" ? 'active' : ''}">
 				<a href="/super-admin/dashboard" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-home-circle" />
+					<i class="menu-icon tf-icons bx {activePage == "dashboard" ? 'bxs-grid-alt' : 'bx-grid-alt'}" />
 					<div>Dashboard</div>
 				</a>
 			</li>
 			<li class="menu-item {activePage == "batch" ? 'active' : ''}">
 				<a href="/super-admin/batch" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-file" />
+					<i class='menu-icon tf-icons bx {activePage == "batch" ? 'bxs-folder' : 'bx-folder'}'></i>
 					<div>Batches</div>
 				</a>
 			</li>
 			<li class="menu-item {activePage == "program" ? 'active' : ''}">
 				<a href="/super-admin/program" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-file" />
+					<i class="menu-icon tf-icons bx {activePage == "program" ? 'bxs-extension' : 'bx-extension'}" />
 					<div>Programs</div>
 				</a>
 			</li>
 			<li class="menu-item {activePage == "mentor" ? 'active' : ''}">
 				<a href="/super-admin/mentor" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-file" />
+					<i class="menu-icon tf-icons bx {activePage == "mentor" ? 'bxs-face' : 'bx-face'}" />
 					<div>Mentors</div>
 				</a>
 			</li>
 			<li class="menu-item {activePage == "mentee" ? 'active' : ''}">
 				<a href="/super-admin/mentee" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-file" />
+					<i class="menu-icon tf-icons bx {activePage == "mentee" ? 'bxs-group' : 'bx-group'}" />
 					<div>Mentees</div>
 				</a>
 			</li>
 			<li class="menu-item {activePage == "group" ? 'active' : ''}">
 				<a href="/super-admin/group" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-file" />
+					<i class="menu-icon tf-icons bx {activePage == "group" ? 'bxs-cube' : 'bx-cube'}" />
 					<div>Groups</div>
 				</a>
 			</li>
 			<li class="menu-item {activePage == "activity" ? 'active' : ''}">
 				<a href="/super-admin/activity" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-file" />
+					<i class="menu-icon tf-icons bx {activePage == "activity" ? 'bxs-chalkboard' : 'bx-chalkboard'}" />
 					<div>Activities</div>
 				</a>
 			</li>
 			<li class="menu-item {activePage == "absence" ? 'active' : ''}">
 				<a href="/super-admin/absence" class="menu-link">
-					<i class="menu-icon tf-icons bx bx-file" />
+					<i class="menu-icon tf-icons bx {activePage == "absence" ? 'bxs-calendar-event' : 'bx-calendar-event'}" />
 					<div>Absences</div>
 				</a>
 			</li>
