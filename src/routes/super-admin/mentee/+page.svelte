@@ -7,6 +7,7 @@
 	import { onMount } from "svelte";
 	import jquery from "jquery";
 
+    let menteesReal = null
     let menteesList = null
     let menteesTotal = null
     let activeMenteesTotal = null
@@ -17,22 +18,11 @@
             method: "GET",
             endpoint: `mentees`
         }).then(response => {
-            sortData(response?.data.data.mentees)
+            menteesReal = response?.data.data.mentees
+            menteesList = response?.data.data.mentees
             menteesTotal = response?.data.data.mentees_total
             activeMenteesTotal = response?.data.data.active_mentees
             status = true
-        })
-    }
-
-    let sortData = (data) => {
-        menteesList = data
-        menteesList = menteesList.sort((a,b) => {
-            let x = a.name.toLowerCase()
-            let y = b.name.toLowerCase()
-
-            if(x>y){return 1}
-            if(x<y){return -1}
-            return 0
         })
     }
 
@@ -64,6 +54,20 @@
                 window.location.href = '/super-admin/mentee'
             }
         })
+    }
+
+    let filterMentee = () => {
+        menteesList = menteesReal
+        let tempMentees = menteesList
+        let targetName = jquery('#filter-name').val().toLowerCase()
+        let targetUniversity = jquery('#filter-university').val().toLowerCase()
+
+        tempMentees = tempMentees.filter(m => {
+            return m.name.toLowerCase().includes(targetName) &&
+                m.university.toLowerCase().includes(targetUniversity)
+        })
+
+        menteesList = tempMentees
     }
 
     onMount(async () => {
@@ -134,7 +138,11 @@
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
-										<input type="text" class="form-control" placeholder="Mentee Name" id="filter-name">
+										<input type="text" class="form-control" placeholder="Mentee Name" id="filter-name" on:keyup={() => {filterMentee()}}>
+                                    </div>
+                                    <div class="input-group input-group-merge">
+                                        <span class="input-group-text" id="basic-addon-search32"><i class="bx bx-search"></i></span>
+										<input type="text" class="form-control" placeholder="University" id="filter-university" on:keyup={() => {filterMentee()}}>
                                     </div>
                                     <button type="button" class="btn btn-outline-secondary text-nowrap" on:click={() => jquery('#import-excel').click()}>
                                         <span class="tf-icons bx bxs-file-import me-1"></span>From Excel
@@ -167,7 +175,7 @@
 									</thead>
 									<tbody>
                                     {#if menteesList.length > 0}
-                                    {#each menteesList as m, i}
+                                    {#each menteesList.sort((a,b) => a.name < b.name ? -1 : 1) as m, i}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                     <tr id="data-{m.id}" on:click={() => window.location.href = `/super-admin/mentee/detail/${m.id}`}
                                         on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
