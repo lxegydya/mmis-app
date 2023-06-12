@@ -3,6 +3,7 @@
 
 	import Sidebar from '../../../components/sidebar.svelte';
 	import Navbar from '../../../components/navbar.svelte';
+	import Footer from '../../../components/footer.svelte';
 	import { onMount } from 'svelte';
 	import jquery from 'jquery';
 	import ApiController from '../../../ApiController';
@@ -22,10 +23,6 @@
 
 	onMount(async () => {
 		// @ts-ignore
-		let loginData = JSON.parse(window.localStorage.getItem('login-data'));
-		if (!loginData) {
-			window.location.href = '/super-admin';
-		}
 
 		getDashboard()
 	});
@@ -55,7 +52,7 @@
 				</h4>
 				{#if status}
 				<div class="row">
-					<div class="col-lg-2 col-md-4 col-6 mb-4">
+					<div class="col-lg-3 col-md-4 col-12 mb-4">
 						<div class="card">
 							<div class="card-body">
 								<div class="card-title d-flex align-items-start justify-content-between">
@@ -74,7 +71,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-2 col-md-4 col-6 mb-4">
+					<div class="col-lg-3 col-md-4 col-12 mb-4">
 						<div class="card">
 							<div class="card-body">
 								<div class="card-title d-flex align-items-start justify-content-between">
@@ -94,7 +91,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-2 col-md-4 col-6 mb-4">
+					<div class="col-lg-3 col-md-4 col-12 mb-4">
 						<div class="card">
 							<div class="card-body">
 								<div class="card-title d-flex align-items-start justify-content-between">
@@ -114,7 +111,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-2 col-md-4 col-6 mb-4">
+					<div class="col-lg-3 col-md-4 col-12 mb-4">
 						<div class="card">
 							<div class="card-body">
 								<div class="card-title d-flex align-items-start justify-content-between">
@@ -133,7 +130,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-2 col-md-4 col-6 mb-4">
+					<div class="col-lg-3 col-md-4 col-12 mb-4">
 						<div class="card">
 							<div class="card-body">
 								<div class="card-title d-flex align-items-start justify-content-between">
@@ -157,5 +154,6 @@
 			</div>
 		</div>
 		{/if}
+		<Footer/>
 	</div>
 </div>

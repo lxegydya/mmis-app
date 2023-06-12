@@ -3,6 +3,7 @@
 
     import Sidebar from "../../../components/sidebar.svelte";
     import Navbar from "../../../components/navbar.svelte";
+    import Footer from "../../../components/footer.svelte";
     import ApiController from "../../../ApiController";
 	import { onMount } from "svelte";
 
@@ -15,7 +16,6 @@
             endpoint:'super-admin/absence'
         }).then(response => {
             data = response?.data.data
-            console.log(data)
             status = true
         })
     }
@@ -94,5 +94,6 @@
                 {/if}
             </div>
         </div>
+        <Footer/>
     </div>
 </div>

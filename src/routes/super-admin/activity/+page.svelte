@@ -3,12 +3,20 @@
 
     import Sidebar from "../../../components/sidebar.svelte";
     import Navbar from "../../../components/navbar.svelte";
+    import Pagination from "../../../components/pagination.svelte";
+    import Footer from "../../../components/footer.svelte";
 	import ApiController from "../../../ApiController";
 	import { onMount } from "svelte";
 	import toDate from "../../../CustomTime";
+    import pagination from "../../../CustomPagination";
 
     let data = null
+    let activitiesReal = null
+    let activities = null
     let status = false
+
+    let currentPage = 1
+    let showRowData = 10
 
     let getActivities = () => {
         ApiController({
@@ -16,6 +24,12 @@
             endpoint:'activity'
         }).then(response => {
             data = response?.data.data
+            activitiesReal = data.activities.sort((a,b) => new Date(a.date) - new Date(b.date))
+            activitiesReal.forEach((a, i) => {
+                a.numbering = i+1
+            })
+
+            activities = activitiesReal
             status = true
         })
     }
@@ -102,9 +116,9 @@
 										</tr>
 									</thead>
                                     <tbody>
-                                        {#each data.activities.sort((a,b) => new Date(a.date) - new Date(b.date)) as a, i}
+                                        {#each pagination(activities, currentPage, showRowData) as a, i}
                                         <tr>
-                                            <td>{i+1}</td>
+                                            <td>{a.numbering}</td>
                                             <td>{a.name}</td>
                                             <td>{a.batch_name}</td>
                                             <td>{a.program_name}</td>
@@ -125,9 +139,11 @@
                             </div>
                         </div>
                     </div>
+                    <Pagination bind:currentPage={currentPage} bind:dataList={activities} showRowData={showRowData} position='end'/>
                 </div>
                 {/if}
             </div>
         </div>
+        <Footer/>
     </div>
 </div>

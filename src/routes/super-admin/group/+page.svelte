@@ -5,6 +5,7 @@
 	import ApiController from "../../../ApiController";
     import Navbar from "../../../components/navbar.svelte";
     import Sidebar from "../../../components/sidebar.svelte";
+    import Footer from "../../../components/footer.svelte";
 	import jquery from "jquery";
 
     let groups = null
@@ -109,5 +110,6 @@
                 {/if}
             </div>
         </div>
+        <Footer/>
     </div>
 </div>

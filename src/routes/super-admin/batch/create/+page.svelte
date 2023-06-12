@@ -1,6 +1,7 @@
 <script>
 	import Sidebar from '../../../../components/sidebar.svelte';
 	import Navbar from '../../../../components/navbar.svelte';
+    import Footer from '../../../../components/footer.svelte';
 	import jquery from 'jquery';
 	import ApiController from '../../../../ApiController';
 
@@ -35,6 +36,8 @@
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 					<span
 						id="nav-back-link"
 						class="text-muted fw-light"
@@ -90,5 +93,6 @@
 				</div>
 			</div>
 		</div>
+        <Footer/>
 	</div>
 </div>

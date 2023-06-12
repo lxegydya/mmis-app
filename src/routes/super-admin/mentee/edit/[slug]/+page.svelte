@@ -3,6 +3,7 @@
 
     import Sidebar from "../../../../../components/sidebar.svelte";
     import Navbar from "../../../../../components/navbar.svelte";
+    import Footer from "../../../../../components/footer.svelte";
     import jquery from "jquery";
 	import ApiController from "../../../../../ApiController";
     import { onMount } from "svelte";
@@ -198,5 +199,6 @@
                 {/if}
             </div>
         </div>
+        <Footer/>
     </div>
 </div>

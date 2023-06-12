@@ -5,6 +5,7 @@
 	import ApiController from "../../../ApiController";
     import Navbar from "../../../components/navbar.svelte";
     import Sidebar from "../../../components/sidebar.svelte";
+    import Footer from "../../../components/footer.svelte";
 
     let mentorsList = null
     let status = false
@@ -120,5 +121,6 @@
                 {/if}
             </div>
         </div>  
+        <Footer/>
     </div>  
 </div>  

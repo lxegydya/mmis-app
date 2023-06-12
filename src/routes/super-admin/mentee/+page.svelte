@@ -3,9 +3,12 @@
 
     import Sidebar from "../../../components/sidebar.svelte";
     import Navbar from "../../../components/navbar.svelte";
+    import Footer from "../../../components/footer.svelte";
+    import Pagination from "../../../components/pagination.svelte";
 	import ApiController from "../../../ApiController";
 	import { onMount } from "svelte";
 	import jquery from "jquery";
+	import pagination from "../../../CustomPagination";
 
     let menteesReal = null
     let menteesList = null
@@ -14,6 +17,7 @@
     let status = false
 
     let currentPage = 1
+    let showRowData = 10
 
     let getMentees = () => {
         ApiController({
@@ -79,15 +83,6 @@
         })
 
         menteesList = tempMentees
-    }
-
-    let pagination = (dataReal, index) => {
-        let tempData = dataReal
-        let start = index == 1 ? 0 : (index - 1) * 10
-        let end = index * 10
-        
-        tempData = tempData.slice(start, end)
-        return tempData
     }
 
     onMount(async () => {
@@ -195,7 +190,7 @@
 									</thead>
 									<tbody>
                                     {#if menteesList.length > 0}
-                                    {#each pagination(menteesList, currentPage) as m}
+                                    {#each pagination(menteesList, currentPage, showRowData) as m}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                     <tr id="data-{m.id}" on:click={() => window.location.href = `/super-admin/mentee/detail/${m.id}`}
                                         on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
@@ -230,53 +225,11 @@
                             </div>
                         </div>
                     </div>
-                    {#if menteesList.length > 10}
-                    <nav aria-label="Page navigation" class="mt-3">
-                        <ul class="pagination justify-content-end">
-                            {#if currentPage > 3}
-                            <li class="page-item prev">
-                                <button class="page-link" on:click={() => {
-                                    currentPage = 1
-                                }}><i class="tf-icon bx bx-chevrons-left"></i></button>
-                            </li>
-                            {/if}
-                            {#if currentPage >= Math.ceil(menteesList.length/10)}
-                            <li class="page-item">
-                                <button class="page-link" on:click={() => {
-                                    currentPage = currentPage - 2
-                                }}>{currentPage-2}</button>
-                            </li>
-                            {/if}
-                            {#if currentPage > 1}
-                            <li class="page-item">
-                                <button class="page-link" on:click={() => {
-                                    currentPage = currentPage - 1
-                                }}>{currentPage-1}</button>
-                            </li>
-                            {/if}
-                            <li class="page-item active">
-                                <button class="page-link">{currentPage}</button>
-                            </li>
-                            {#if currentPage < Math.ceil(menteesList.length/10)}
-                            <li class="page-item">
-                                <button class="page-link" on:click={() => {
-                                    currentPage = currentPage + 1
-                                }}>{currentPage+1}</button>
-                            </li>
-                            {/if}
-                            {#if currentPage + 2 <= Math.ceil(menteesList.length/10)}
-                            <li class="page-item next">
-                                <button class="page-link" on:click={() => {
-                                    currentPage = Math.ceil(menteesList.length/10)
-                                }}><i class="tf-icon bx bx-chevrons-right"></i></button>
-                            </li>
-                            {/if}
-                        </ul>
-                    </nav>
-                    {/if}
+                    <Pagination bind:currentPage={currentPage} bind:dataList={menteesList} showRowData=10 position='end'/>
                 </div>
                 {/if}
             </div>
         </div>
+        <Footer/>
     </div>
 </div>

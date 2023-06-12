@@ -5,83 +5,85 @@
 	import Navbar from "../../../../../components/navbar.svelte";
 	import Footer from "../../../../../components/footer.svelte";
 	import ApiController from "../../../../../ApiController";
-	import { onMount } from "svelte";
     import jquery from "jquery";
+	import { onMount } from "svelte";
 
 	export let data
+
+    let status = false
 
 	let detail = null
     let programs = null
     let types = null
-    let status = false
 
-    let getDropdownItem = () => {
+    let getData = () => {
         ApiController({
             method:"GET",
-            endpoint:'activity/dropdown-item'
+            endpoint:'assignment/get-preparation-data'
         }).then(response => {
             programs = response?.data.data.programs
             types = response?.data.data.types
-            status = true
+			getDetail()
         })
     }
 
 	let getDetail = () => {
 		ApiController({
-			method:"POST",
-			endpoint:`activity/detail`,
-			datas:{id:data.params.slug}
+			method:"GET",
+			endpoint:`assignment/get/${data.params.slug}`
 		}).then(response => {
 			detail = response.data.data
-			getDropdownItem()
+			status = true
 		})
 	}
 
-    let updateActivity = () => {
-        ApiController({
+    let updateAssignment = () => {
+		ApiController({
             method:"POST",
-            endpoint:'activity/update',
-            datas:{
-				id:data.params.slug,
-                name:jquery('#name').val(),
-                date:jquery('#date').val(),
-                program_id:jquery('#program').val(),
-                type_id:jquery('#activity').val()
-            }
-        }).then(response => {
-			if(response.data.msg == 'success'){
-				alert('Activity Updated!')
-				window.location.href = '/super-admin/activity'
+            endpoint:'assignments/update',
+			datas:{
+				id:detail.id,
+				name:jquery('#name').val(),
+				description:jquery('#description').val(),
+				deadline:jquery('#deadline').val(),
+				type:jquery('#type').val(),
+				program:jquery('#program').val()
 			}
-		})
+        }).then(response => {
+            if(response.data.msg == 'success'){
+				alert("Assignment Updated!")
+				window.location.href = '/super-admin/assignment'
+			}
+        })
     }
 
     onMount(async () => {
-        getDetail()
+        getData()
     })
+
 </script>
 
 <svelte:head>
-	<title>Activities | Edit</title>
-	<html lang="en" />
+    <title>Assignments | Edit</title>
+    <html lang="en" />
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="program" />
-	<div class="w-100 d-flex flex-column">
-		<Navbar />
-		<div class="wrapper">
-			<div class="container-xxl flex-grow-1 container-p-y">
-				<h4 class="fw-bold py-3 mb-4">
+    <Sidebar activePage="assignment" />
+    <div class="w-100 d-flex flex-column">
+        <Navbar />
+        <div class="wrapper">
+            <div class="container-xxl flex-grow-1 container-p-y">
+                <h4 class="fw-bold py-3 mb-4">
 					<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<span
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/assignment';
 						}}
-						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Activities /</span
+						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Assignments /</span
 					> Edit
 				</h4>
                 {#if status}
@@ -89,26 +91,31 @@
 					<div class="col-md-6">
 						<div class="card mb-4">
 							<div class="card-header d-flex justify-content-between align-items-center">
-								<h5 class="mb-0">Edit Activity</h5>
+								<h5 class="mb-0">Create Assignment</h5>
 							</div>
 							<div class="card-body">
 								<div class="mb-3">
-									<label class="form-label" for="name">Activity Name</label>
+									<label class="form-label" for="name">Title</label>
 									<div class="input-group input-group-merge">
 										<input type="text" class="form-control" id="name" placeholder="Activity Name" value="{detail.name}">
 									</div>
 								</div>
-                                <div class="mb-3">
-									<label class="form-label" for="date">Activity Date</label>
+								<div class="mb-3">
+									<label class="form-label" for="description">Description</label>
 									<div class="input-group input-group-merge">
-										<input type="date" class="form-control" id="date" value="{detail.date}">
+										<textarea class="form-control" id="description" rows="3">{detail.description}</textarea>
 									</div>
 								</div>
                                 <div class="mb-3">
-									<label class="form-label" for="activity">Activity Type</label>
+									<label class="form-label" for="deadline">Deadline</label>
 									<div class="input-group input-group-merge">
-										<select class="form-select" id="activity">
-                                            <option value="" selected hidden>Select Type</option>
+										<input type="date" class="form-control" id="deadline" value="{detail.deadline}">
+									</div>
+								</div>
+                                <div class="mb-3">
+									<label class="form-label" for="type">Assignment Type</label>
+									<div class="input-group input-group-merge">
+										<select class="form-select" id="type">
                                             {#each types as t}
                                             <option value="{t.id}" selected={detail.type_id == t.id ? true : false}>{t.type}</option>
                                             {/each}
@@ -126,19 +133,20 @@
                                         </select>
 									</div>
 								</div>
-								<button
-									type="submit"
-									class="btn btn-primary"
-									on:click={() => {
-                                        updateActivity()
-									}}>Save Changes</button>
+								<div class="d-flex justify-content-end gap-2">
+									<button class="btn btn-outline-secondary" on:click={() => window.location.href = '/super-admin/assignment'}>Cancel</button>
+									<button type="submit" class="btn btn-primary" on:click={() => {
+										updateAssignment()
+										}}>Save Changes
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
+					<Footer/>
 				</div>
                 {/if}
-			</div>
-		</div>
-		<Footer/>
-	</div>
+            </div>
+        </div>
+    </div>
 </div>

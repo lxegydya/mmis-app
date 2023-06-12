@@ -3,72 +3,74 @@
 
     import Sidebar from "../../../../components/sidebar.svelte";
     import Navbar from "../../../../components/navbar.svelte";
-	import Footer from "../../../../components/footer.svelte";
-	import ApiController from "../../../../ApiController";
-	import { onMount } from "svelte";
+    import Footer from "../../../../components/footer.svelte";
     import jquery from "jquery";
+	import { onMount } from "svelte";
+	import ApiController from "../../../../ApiController";
 
-    let batches = null
-    let programs = null
-    let types = null
     let status = false
 
-    let getDropdownItem = () => {
+    let programs = null
+    let types = null
+
+    let getData = () => {
         ApiController({
             method:"GET",
-            endpoint:'activity/dropdown-item'
+            endpoint:'assignment/get-preparation-data'
         }).then(response => {
+			console.log(response)
             programs = response?.data.data.programs
             types = response?.data.data.types
-            console.log(programs)
             status = true
         })
     }
 
-    let createActivity = () => {
-        ApiController({
+    let createAssignment = () => {
+		ApiController({
             method:"POST",
-            endpoint:'activity/create',
-            datas:{
-                name:jquery('#name').val(),
-                date:jquery('#date').val(),
-                program_id:jquery('#program').val(),
-                type_id:jquery('#activity').val()
-            }
-        }).then(response => {
-			if(response.data.msg == 'success'){
-				alert('Activity Created!')
-				window.location.href = '/super-admin/activity'
+            endpoint:'assignments/add',
+			datas:{
+				name:jquery('#name').val(),
+				description:jquery('#description').val(),
+				deadline:jquery('#deadline').val(),
+				type:jquery('#type').val(),
+				program:jquery('#program').val()
 			}
-		})
+        }).then(response => {
+            if(response.data.msg == 'success'){
+				alert("Assignment Created!")
+				window.location.href = '/super-admin/assignment'
+			}
+        })
     }
 
     onMount(async () => {
-        getDropdownItem()
+        getData()
     })
+
 </script>
 
 <svelte:head>
-	<title>Activities | Create</title>
-	<html lang="en" />
+    <title>Assignments | Create</title>
+    <html lang="en" />
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="program" />
-	<div class="w-100 d-flex flex-column">
-		<Navbar />
-		<div class="wrapper">
-			<div class="container-xxl flex-grow-1 container-p-y">
-				<h4 class="fw-bold py-3 mb-4">
+    <Sidebar activePage="assignment" />
+    <div class="w-100 d-flex flex-column">
+        <Navbar />
+        <div class="wrapper">
+            <div class="container-xxl flex-grow-1 container-p-y">
+                <h4 class="fw-bold py-3 mb-4">
 					<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<span
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/assignment';
 						}}
-						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Activities /</span
+						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Assignments /</span
 					> Create
 				</h4>
                 {#if status}
@@ -76,25 +78,31 @@
 					<div class="col-md-6">
 						<div class="card mb-4">
 							<div class="card-header d-flex justify-content-between align-items-center">
-								<h5 class="mb-0">Create Activity</h5>
+								<h5 class="mb-0">Create Assignment</h5>
 							</div>
 							<div class="card-body">
 								<div class="mb-3">
-									<label class="form-label" for="name">Activity Name</label>
+									<label class="form-label" for="name">Title</label>
 									<div class="input-group input-group-merge">
 										<input type="text" class="form-control" id="name" placeholder="Activity Name">
 									</div>
 								</div>
-                                <div class="mb-3">
-									<label class="form-label" for="date">Activity Date</label>
+								<div class="mb-3">
+									<label class="form-label" for="description">Description</label>
 									<div class="input-group input-group-merge">
-										<input type="date" class="form-control" id="date">
+										<textarea class="form-control" id="description" rows="3"></textarea>
 									</div>
 								</div>
                                 <div class="mb-3">
-									<label class="form-label" for="activity">Activity Type</label>
+									<label class="form-label" for="deadline">Deadline</label>
 									<div class="input-group input-group-merge">
-										<select class="form-select" id="activity">
+										<input type="date" class="form-control" id="deadline">
+									</div>
+								</div>
+                                <div class="mb-3">
+									<label class="form-label" for="type">Assignment Type</label>
+									<div class="input-group input-group-merge">
+										<select class="form-select" id="type">
                                             <option value="" selected hidden>Select Type</option>
                                             {#each types as t}
                                             <option value="{t.id}">{t.type}</option>
@@ -113,19 +121,20 @@
                                         </select>
 									</div>
 								</div>
-								<button
-									type="submit"
-									class="btn btn-primary"
-									on:click={() => {
-                                        createActivity()
-									}}>Create</button>
+								<div class="d-flex justify-content-end gap-2">
+									<button class="btn btn-outline-secondary" on:click={() => window.location.href = '/super-admin/assignment'}>Cancel</button>
+									<button type="submit" class="btn btn-primary" on:click={() => {
+										createAssignment()
+										}}>Create
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
+					<Footer/>
 				</div>
                 {/if}
-			</div>
-		</div>
-		<Footer/>
-	</div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -3,8 +3,8 @@
 
     import Sidebar from "../../../../../components/sidebar.svelte";
 	import Navbar from "../../../../../components/navbar.svelte";
-	import Pagination from "../../../../../components/pagination.svelte";
 	import Footer from "../../../../../components/footer.svelte";
+	import Pagination from "../../../../../components/pagination.svelte";
 	import ApiController from "../../../../../ApiController";
 	import { onMount } from "svelte";
     import jquery from "jquery";
@@ -13,30 +13,24 @@
 
 	export let data
 
-	let activitiesReal = null
-	let activities = null
-	let activityType = []
+	let program = null
+	let types = null
+	let assignmentsReal = null
+	let assignments = null
 	let status = false
 
 	let currentPage = 1
 	let showRowData = 10
 
-	let getActivities = () => {
+	let getAssignments = () => {
 		ApiController({
-			method:"POST",
-			endpoint:'super-admin/absence/activities',
-			datas:{id:data.params.slug}
+			method:"GET",
+			endpoint:`assignments/${data.params.slug}`
 		}).then(response => {
-			activitiesReal = response.data.data
-			activitiesReal = activitiesReal.sort((a,b) => new Date(a.date) - new Date(b.date))
-			activitiesReal.forEach((element, i) => {
-				if(!activityType.includes(element.type)){
-					activityType.push(element.type)
-				}
-				element.numbering = i+1
-			})
-
-			activities = activitiesReal
+			program = response.data.data.program
+			types = response.data.data.types
+			assignmentsReal = response.data.data.assignments
+			assignments = assignmentsReal
 
 			status = true
 		})
@@ -61,17 +55,17 @@
 	}
 
     onMount(async () => {
-        getActivities()
+        getAssignments()
     })
 </script>
 
 <svelte:head>
-	<title>Absences | Fill Absences</title>
+	<title>Scoring | {status ? `[${program.batch_name}] ${program.program_name}` : ''}</title>
 	<html lang="en" />
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="absence" />
+	<Sidebar activePage="scoring" />
 	<div class="w-100 d-flex flex-column">
 		<Navbar />
 		<div class="wrapper">
@@ -83,20 +77,20 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/scoring';
 						}}
-						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Absences /</span
-					> Fill Absences
+						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Scorings /</span
+					> {status ? `[${program.batch_name}] ${program.program_name}` : ''}
 				</h4>
 				{#if status}
 				<div class="row">
                     <div class="col-12">
 						<div class="card">
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5 class="card-header">List of Activities</h5>
+                                <h5 class="card-header">List of Assignments</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Activity Name" on:keyup={() => {
+                                        <input type="text" class="form-control" id="filter-name" placeholder="Assignment Title" on:keyup={() => {
 											filterActivities()
 										}}>
                                     </div>
@@ -104,41 +98,41 @@
                                         <select id="filter-type" class="form-select" on:change={() => {
 											filterActivities()
 										}}>
-                                            <option value="" selected>All Activity Type</option>
-											{#each activityType as t}
-                                            <option value="{t}" >{t}</option>
+                                            <option value="" selected>All Type</option>
+											{#each types as t}
+                                            <option value="{t.type}" >{t.type}</option>
 											{/each}
                                         </select>
                                     </div>
                                 </div>
                             </div>
-							<div class="table-responsive text-nowrap">
+							<div class="table-responsive">
 								<table class="table table-hover">
 									<thead>
-										<tr class="text-nowrap">
-											<th>NO.</th>
-											<th>Activity Name</th>
-											<th>Program</th>
-											<th>Date</th>
-											<th class="text-center">Mentees Present</th>
-                                            <th>Type of Activity</th>
+										<tr class="">
+											<th class="text-center">NO.</th>
+											<th>Assignment Title</th>
+											<th style="max-width: 300px; ">Description</th>
+											<th class="text-center">Deadline</th>
+											<th class="text-center">Submitted</th>
+                                            <th class="text-center">Type</th>
 											<th class="text-center">Action</th>
 										</tr>
 									</thead>
                                     <tbody>
-                                        {#each pagination(activities, currentPage, showRowData) as a, i}
+                                        {#each pagination(assignments, currentPage, showRowData) as a, i}
                                         <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                         <tr id="data-{a.id}" 
 											on:click={() => window.location.href = `/super-admin/absence/fill-absence/list/${a.id}`}
 											on:mouseover={() => jquery(`#data-${a.id}`).css('cursor', 'pointer')}>
-                                            <td>{a.numbering}</td>
+                                            <td class="text-center">{i+1}</td>
                                             <td>{a.name}</td>
-                                            <td>{a.program_name}</td>
-                                            <td>{toDate(a.date)}</td>
+                                            <td style="max-width: 300px; ">{a.description}</td>
+                                            <td class="text-center">{toDate(a.deadline)}</td>
 											<td class="text-center">{a.mentees_count < 10 ? '0' + a.mentees_count : a.mentees_count} / {a.mentees_total}</td>
-                                            <td>{a.type}</td>
+                                            <td class="text-center">{a.type}</td>
                                             <td class="text-center">
-                                                <button class="btn btn-sm btn-outline-primary">Fill Up</button>
+                                                <button class="btn btn-sm btn-outline-primary">Appraise</button>
                                             </td>
                                         </tr>
                                         {/each}
@@ -147,7 +141,7 @@
                             </div>
                         </div>
                     </div>
-					<Pagination bind:currentPage={currentPage} bind:dataList={activities} showRowData={showRowData} position='end'/>
+					<Pagination bind:currentPage={currentPage} bind:dataList={assignments} showRowData={showRowData} position='end'/>
                 </div>
 				{/if}
 			</div>
