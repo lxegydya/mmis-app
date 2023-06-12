@@ -12,6 +12,9 @@
 
 	onMount(async () => {
 		loginData = JSON.parse(window.localStorage.getItem('login-data'))
+		if (!loginData) {
+			window.location.href = '/';
+		}
 	})
 </script>
 
