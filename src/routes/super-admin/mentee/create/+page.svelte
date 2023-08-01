@@ -10,10 +10,155 @@
     let countInsert = 1
 
     let createMentee = () => {
+        let isError = false
         let data = []
         let formdata = new FormData()
 
         for (let index = 0; index < countInsert; index++) {
+            if(jquery(`#id-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert MSIB ID!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#name-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert Name!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#gender-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please choose Gender!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#university-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert University!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#major-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert Major!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#semester-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert Semester!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#email-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert Email!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#phone-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert Phone Number!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
+            if(jquery(`#status-${index+1}`).val() == ''){
+                isError = true
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please Choose Status!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
             formdata.append(`image-${index+1}`, jquery(`#image-${index+1}`).prop('files')[0])
 
             data.push({
@@ -29,6 +174,10 @@
             })
         }
 
+        if(isError){
+            return
+        }
+
         formdata.append('datas', JSON.stringify(data))
 
         ApiController({
@@ -38,8 +187,20 @@
             sendForm:true
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert(`Mentee${countInsert > 1 ? 's' : ''} Created!`)
-                window.location.href = '/super-admin/mentee'
+                swal({
+                    title : "Data Created Successfully!", 
+                    text : `Your new Mentee${countInsert > 1 ? 's' : ''} data has been saved!`, 
+                    icon: "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/mentee'
+                })
             }
         })
     }
@@ -51,9 +212,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="mentee" />
+	<Sidebar activePage="mentee" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -93,7 +254,7 @@
                                         <label class="form-label" for="gender-{i+1}">Gender</label>
                                         <div class="input-group input-group-merge">
                                             <select id="gender-{i+1}" class="form-select">
-                                                <option selected hidden>Choose Gender</option>
+                                                <option value="" selected hidden>Choose Gender</option>
                                                 <option value="Male">Male</option>
                                                 <option value="Female">Female</option>
                                             </select>
@@ -137,7 +298,7 @@
                                         <label class="form-label" for="status-{i+1}">Status</label>
                                         <div class="input-group input-group-merge">
                                             <select id="status-{i+1}" class="form-select">
-                                                <option selected hidden>Choose Status</option>
+                                                <option value="" selected hidden>Choose Status</option>
                                                 <option value="Active">Active</option>
                                                 <option value="Not-Active">Not-Active</option>
                                             </select>

@@ -18,7 +18,6 @@
             method:"GET",
             endpoint:'assignment/get-preparation-data'
         }).then(response => {
-			console.log(response)
             programs = response?.data.data.programs
             types = response?.data.data.types
             status = true
@@ -26,6 +25,81 @@
     }
 
     let createAssignment = () => {
+		if(jquery('#name').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Assignment Title!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#desciption').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Description!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#deadline').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please select deadline date!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#type').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please choose Assignment Type!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#program').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please choose Program!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
 		ApiController({
             method:"POST",
             endpoint:'assignments/add',
@@ -38,8 +112,20 @@
 			}
         }).then(response => {
             if(response.data.msg == 'success'){
-				alert("Assignment Created!")
-				window.location.href = '/super-admin/assignment'
+				swal({
+                    title : "Data Created Successfully!", 
+                    text : "Your new Assingment has been saved!", 
+                    icon: "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/assignment'
+                })
 			}
         })
     }
@@ -56,9 +142,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-    <Sidebar activePage="assignment" />
+    <Sidebar activePage="assignment" role='admin'/>
     <div class="w-100 d-flex flex-column">
-        <Navbar />
+        <Navbar role='admin'/>
         <div class="wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
                 <h4 class="fw-bold py-3 mb-4">
@@ -84,7 +170,7 @@
 								<div class="mb-3">
 									<label class="form-label" for="name">Title</label>
 									<div class="input-group input-group-merge">
-										<input type="text" class="form-control" id="name" placeholder="Activity Name">
+										<input type="text" class="form-control" id="name" placeholder="Assignment Title">
 									</div>
 								</div>
 								<div class="mb-3">

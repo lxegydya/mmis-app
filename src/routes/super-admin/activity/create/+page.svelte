@@ -26,6 +26,66 @@
     }
 
     let createActivity = () => {
+		if(jquery('#name').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Activity Name!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#date').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Activity Date!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#activity').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please Choose Type!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#program').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please Choose Program!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
         ApiController({
             method:"POST",
             endpoint:'activity/create',
@@ -37,8 +97,20 @@
             }
         }).then(response => {
 			if(response.data.msg == 'success'){
-				alert('Activity Created!')
-				window.location.href = '/super-admin/activity'
+				swal({
+                    title : "Data Created Successfully!", 
+                    text : "Your new Activity data has been saved!", 
+                    icon: "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/activity'
+                })
 			}
 		})
     }
@@ -54,9 +126,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="program" />
+	<Sidebar activePage="activity" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -66,7 +138,7 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/activity'
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Activities /</span
 					> Create
@@ -113,6 +185,7 @@
                                         </select>
 									</div>
 								</div>
+								<button class="btn btn-outline-secondary" on:click={() => window.location.href = '/super-admin/activity'}>Cancel</button>
 								<button
 									type="submit"
 									class="btn btn-primary"

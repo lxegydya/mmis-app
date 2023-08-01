@@ -38,6 +38,21 @@
 	}
 
     let updateActivity = () => {
+		if(jquery('#name').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Activity Name!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
         ApiController({
             method:"POST",
             endpoint:'activity/update',
@@ -50,8 +65,20 @@
             }
         }).then(response => {
 			if(response.data.msg == 'success'){
-				alert('Activity Updated!')
-				window.location.href = '/super-admin/activity'
+				swal({
+					title : "Data Updated Successfully!", 
+					text : "Your Activity data has been updated!", 
+					icon : "success",
+					button: {
+						text : 'Okay!',
+						value : true,
+						visible : true,
+						className : 'btn btn-primary',
+						closeModal : true
+					}
+				}).then(() => {
+                    window.location.href = '/super-admin/activity'
+                })
 			}
 		})
     }
@@ -67,9 +94,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="program" />
+	<Sidebar activePage="activity" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -79,7 +106,7 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/activity'
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Activities /</span
 					> Edit
@@ -126,6 +153,7 @@
                                         </select>
 									</div>
 								</div>
+								<button class="btn btn-outline-secondary" on:click={() => window.location.href = '/super-admin/activity'}>Cancel</button>
 								<button
 									type="submit"
 									class="btn btn-primary"

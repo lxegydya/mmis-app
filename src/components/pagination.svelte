@@ -6,12 +6,14 @@
 	export let currentPage
 	export let dataList
     export let showRowData
-    export let position
 </script>
 
 {#if dataList.length > showRowData}
-<nav aria-label="Page navigation" class="mt-3">
-    <ul class="pagination justify-content-{position}">
+<nav aria-label="Page navigation" class="mt-3 d-flex align-items-center justify-content-between">
+    <div>
+        Showing <b>{(showRowData*currentPage)-(showRowData)+1}</b> to <b>{(Math.ceil(dataList.length) / showRowData) <= currentPage ? dataList.length : (showRowData * currentPage)}</b> from <b>{dataList.length}</b> List of Data
+    </div>
+    <ul class="pagination">
         {#if currentPage >= 3}
         <li class="page-item prev">
             <button class="page-link" on:click={() => {

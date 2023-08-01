@@ -5,6 +5,11 @@ const pagination = (dataReal, index, showRowData) => {
     let end = index * showRowData
     
     tempData = tempData.slice(start, end)
+    // @ts-ignore
+    tempData.map((tmp, i) => {
+        tmp.number = (showRowData * (index - 1)) + (i + 1)
+    })
+
     return tempData
 }
 

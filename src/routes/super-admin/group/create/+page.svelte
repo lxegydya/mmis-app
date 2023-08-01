@@ -7,6 +7,13 @@
     import jquery from "jquery";
 	import ApiController from "../../../../ApiController";
 	import { onMount } from "svelte";
+    import swal from "sweetalert";
+    import Pagination from "../../../../components/pagination.svelte";
+    import pagination from "../../../../CustomPagination";
+	import returnNada from "../../../../CustomReturnNada";
+
+    let currentPage = 1
+    let showRowData = 10
 
     let currentStep = 0
 
@@ -71,9 +78,22 @@
                 endpoint:`mentor/not-in-group/${selectedProgram}`
             }).then(response => {
                 mentors = response.data.data
+                mentors = mentors.map(m => ({...m, program_id : selectedProgram}))
                 currentStep = 3
                 statusThree = true
             })
+        }else{
+            if(mentors.filter(m => m.program_id == selectedProgram).length == 0){
+                ApiController({
+                    method:"POST",
+                    endpoint:`mentor/not-in-group/${selectedProgram}`
+                }).then(response => {
+                    mentors = response.data.data
+                    mentors = mentors.map(m => ({...m, program_id : selectedProgram}))
+                    currentStep = 3
+                    statusThree = true
+                })
+            }
         }
     }
 
@@ -83,8 +103,13 @@
                 method:"GET",
                 endpoint:`mentee/not-in-group`
             }).then(response => {
+                menteesReal = response.data.data.sort((a,b) => a.name < b.name ? -1 : 1)
+
+                menteesReal.forEach(m => {
+                    m.cssClass = ''
+                })
+
                 mentees = response.data.data
-                menteesReal = response.data.data
                 currentStep = 4
                 statusFour = true
             })
@@ -106,13 +131,26 @@
             datas:group
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert(`Group Created!`)
-                window.location.href = '/super-admin/group'
+                swal({
+                    title : "Data Created Successfully!", 
+                    text : "Your new Group data has been saved!", 
+                    icon: "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/group'
+                })
             }
         })
     }
 
     let filterMentee = () => {
+        currentPage = 1
         mentees = menteesReal
         let tempMentees = mentees
         let target = jquery('#filter-name').val().toLowerCase()
@@ -124,6 +162,21 @@
         mentees = tempMentees
     }
 
+    let showAlert = (title, text) => {
+        return swal({
+            title: title,
+            text: text,
+            icon: "error",
+            button: {
+                text : 'Okay!',
+                value : true,
+                visible : true,
+                className : 'btn btn-primary',
+                closeModal : true
+            }
+        })
+    }
+
     onMount(async () => {
         getBatch()
     })
@@ -133,12 +186,17 @@
 <svelte:head>
 	<title>Groups | Create</title>
 	<html lang="en" />
+    <style>
+        .list-group-item-action:hover{
+            cursor : pointer;
+        }
+    </style>
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="group" />
+	<Sidebar activePage="group" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -148,7 +206,7 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/group'
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Groups /</span
 					> Create
@@ -163,8 +221,10 @@
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <div class="list-group-item list-group-item-action {currentStep == 2 ? 'active' : ''}" id="step-2" on:click={() => {
                                 if(selectedBatch == null){
-                                    alert('Please complete the step one by one!')
-                                    return 0
+                                    return showAlert(
+                                        "Oops, something went wrong!",
+                                        "Please complete the step one by one!"
+                                    )
                                 }
 
                                 currentStep = 2
@@ -173,8 +233,10 @@
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <div class="list-group-item list-group-item-action {currentStep == 3 ? 'active' : ''}" id="step-3" on:click={() => {
                                 if(selectedProgram == null){
-                                    alert('Please complete the step one by one!')
-                                    return 0
+                                    return showAlert(
+                                        "Oops, something went wrong!",
+                                        "Please complete the step one by one!"
+                                    )
                                 }
 
                                 currentStep = 3
@@ -183,20 +245,26 @@
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <div class="list-group-item list-group-item-action {currentStep == 4 ? 'active' : ''}" id="step-4" on:click={() => {
                                 if(selectedMentor == null){
-                                    alert('Please complete the step one by one!')
-                                    return 0
+                                    return showAlert(
+                                        "Oops, something went wrong!",
+                                        "Please complete the step one by one!"
+                                    )
                                 }
 
+                                currentPage = 1
                                 currentStep = 4
                                 getMentee()
                             }}>Assign Mentees</div>
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <div class="list-group-item list-group-item-action {currentStep == 5 ? 'active' : ''}" id="step-5" on:click={() => {
                                 if(selectedMentee.length == 0){
-                                    alert('Please complete the step one by one!')
-                                    return 0
+                                    return showAlert(
+                                        "Oops, something went wrong!",
+                                        "Please complete the step one by one!"
+                                    )
                                 }
 
+                                currentPage = 1
                                 statusFive = true
                                 currentStep = 5
                             }}>Finalization</div>
@@ -209,7 +277,7 @@
                     {#each batches as b}
                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <div class="col-lg-2 col-md-4 col-6 mb-4" on:mouseover={() => {
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-2" on:mouseover={() => {
                         jquery(`#b-0${b.id}`).css('cursor', 'pointer')
                     }} on:click={() => {
                         if(selectedBatch == null){
@@ -289,7 +357,7 @@
                                 <div class="col-md-8">
                                     <div class="card-body">
                                         <h5 class="card-title">{m.fullname}</h5>
-                                        <p class="card-text">{m.skill}</p>
+                                        <p class="card-text">{m.skill == null ? 'Not Set' : m.skill}</p>
                                     </div>
                                 </div>
                             </div>
@@ -330,20 +398,24 @@
 									<tbody>
                                     {#if statusFour}
                                     {#if mentees.length > 0}
-                                    {#each mentees.sort((a,b) => a.name < b.name ? -1 : 1) as m}
+                                    {#if pagination(mentees, currentPage, showRowData).length == 0}
+                                    {returnNada(currentPage = currentPage-1)}
+                                    {/if}
+                                    {#each pagination(mentees, currentPage, showRowData) as m}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-                                    <tr id="data-{m.id}" class="{selectedMentee.includes(m) ? 'table-success' : ''}" on:click={() => {
-                                            if(selectedMentee.includes(m)){
+                                    <tr id="data-{m.id}" class="{m.cssClass}" 
+                                        on:click={() => {
+                                            if(selectedMentee.some(item => item.id == m.id)){
+                                                m.cssClass = ''
                                                 selectedMentee = selectedMentee.filter(mentee => {
                                                     return mentee.id != m.id
                                                 })
                                                 jquery(`#data-${m.id}`).removeClass('table-success')
                                             }else{
+                                                m.cssClass = 'table-success'
                                                 selectedMentee.push(m)
                                                 jquery(`#data-${m.id}`).addClass('table-success')
                                             }
-
-                                            console.log(selectedMentee)
                                         }}
                                         on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
                                         <td>{m.id}</td>
@@ -364,6 +436,7 @@
                             </div>
                         </div>
                     </div>
+                    <Pagination bind:currentPage={currentPage} bind:dataList={mentees} showRowData={showRowData}/>
                     {/if}
                     {:else if currentStep == 5}
                     {#if statusFive}
@@ -374,8 +447,10 @@
                                     <h5 class="card-title">Detail Group</h5>
                                     <button class="btn btn-primary" on:click={() => {
                                         if(jquery('#group-name').val() == ""){
-                                            alert('Fill up the group name!')
-                                            return 0
+                                            return showAlert(
+                                                "Oops, something went wrong!",
+                                                "Fill up the group name!"
+                                            )
                                         }
 
                                         createGroup()
@@ -425,7 +500,10 @@
                                             </thead>
                                             <tbody>
                                             {#if selectedMentee.length > 0}
-                                            {#each selectedMentee as m}
+                                            {#if pagination(selectedMentee, currentPage, showRowData).length == 0}
+                                            {returnNada(currentPage = currentPage-1)}
+                                            {/if}
+                                            {#each pagination(selectedMentee, currentPage, showRowData) as m}
                                             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                             <tr id="data-{m.id}">
                                                 <td>{m.id}</td>
@@ -440,6 +518,12 @@
                                                 {#if selectedMentee.length > 1}
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-danger" on:click={() => {
+                                                        mentees.map(elm => {
+                                                            if(elm.id == m.id){
+                                                                elm.cssClass = ''
+                                                            }
+                                                        })
+                                                        
                                                         selectedMentee = selectedMentee.filter(mentee => {
                                                             return mentee.id != m.id
                                                         })
@@ -456,6 +540,7 @@
                             </div>
                         </div>
                     </div>
+                    <Pagination bind:currentPage={currentPage} bind:dataList={selectedMentee} showRowData={showRowData}/>
                     {/if}
                     {/if}
                 </div>

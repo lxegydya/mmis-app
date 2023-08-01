@@ -9,10 +9,15 @@
 	import { onMount } from "svelte";
 	import toDate from "../../../CustomTime";
     import pagination from "../../../CustomPagination";
+	import jquery from "jquery";
+	import returnNada from "../../../CustomReturnNada";
 
     let data = null
     let activitiesReal = null
     let activities = null
+    let programs = null
+    let batches = null
+    let types = null
     let status = false
 
     let currentPage = 1
@@ -24,27 +29,78 @@
             endpoint:'activity'
         }).then(response => {
             data = response?.data.data
+            programs = data.programs
+            batches = data.batches
+            types = data.types 
             activitiesReal = data.activities.sort((a,b) => new Date(a.date) - new Date(b.date))
-            activitiesReal.forEach((a, i) => {
-                a.numbering = i+1
-            })
-
             activities = activitiesReal
             status = true
         })
     }
 
     let deleteActivity = id => {
-        ApiController({
-            method:"POST",
-            endpoint:'activity/delete',
-            datas:{id}
-        }).then(response => {
-            if(response.data.msg == 'success'){
-                alert('Activity Deleted!')
-                getActivities()
+        swal({
+			title: "Are you sure?",
+			text: "Once deleted, you will not be able to recover this data!",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes Sure!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((willDelete) => {
+			if (willDelete) {
+                ApiController({
+                    method:"POST",
+                    endpoint:'activity/delete',
+                    datas:{id}
+                }).then(response => {
+                    if(response.data.msg == 'success'){
+                        swal("Poof! Data has been deleted!", {
+							icon: "success",
+							button: {
+								text : 'Okay!',
+								value : true,
+								visible : true,
+								className : 'btn btn-primary',
+								closeModal : true
+							}
+						})
+                        getActivities()
+                    }
+                })
             }
         })
+    }
+
+    let filterAssignment = () => {
+        currentPage = 1
+        activities = activitiesReal
+        let tempActivities = activities
+        let targetName = jquery('#filter-name').val().toLowerCase()
+        let targetBatch = jquery('#filter-batch').val().toLowerCase()
+        let targetProgram = jquery('#filter-program').val().toLowerCase()
+        let targetType = jquery('#filter-type').val().toLowerCase()
+
+        tempActivities = tempActivities.filter(m => {
+            return m.name.toLowerCase().includes(targetName) &&
+                m.batch_name.toLowerCase().includes(targetBatch) &&
+                m.program_name.toLowerCase().includes(targetProgram) &&
+                m.type.toLowerCase().includes(targetType)
+        })
+
+        activities = tempActivities
     }
 
     onMount(async () => {
@@ -58,9 +114,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="activity" />
+	<Sidebar activePage="activity" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -74,24 +130,30 @@
                                 <h5 class="card-header">Activities</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Activity Name">
+                                        <input type="text" class="form-control" id="filter-name" placeholder="Activity Name" on:keyup={() => {filterAssignment()}}>
                                     </div>
-									<div class="input-group">
-                                        <select id="filter-category" class="form-select">
+                                    <div class="input-group">
+                                        <select id="filter-batch" class="form-select" on:change={() => {filterAssignment()}}>
                                             <option value="" selected>All Batches</option>
-                                            <option value="Upcoming">Upcoming</option>
-                                            <option value="Ongoing">Ongoing</option>
-                                            <option value="Finished">Finished</option>
-                                        </select>
-                                    </div>
-									<div class="input-group">
-                                        <select id="filter-category" class="form-select">
-                                            <option value="" selected>All Programs</option>
+                                            {#each batches as b}
+                                                <option value="{b.batch_name}">{b.batch_name}</option>
+                                            {/each}
                                         </select>
                                     </div>
                                     <div class="input-group">
-                                        <select id="filter-category" class="form-select">
-                                            <option value="" selected>All Activity Type</option>
+                                        <select id="filter-program" class="form-select" on:change={() => {filterAssignment()}}>
+                                            <option value="" selected>All Programs</option>
+                                            {#each programs as p}
+                                            <option value="{p.program_name}">{p.program_name}</option>
+                                            {/each}
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <select id="filter-type" class="form-select" on:change={() => {filterAssignment()}}>
+                                            <option value="" selected>All Type</option>
+                                            {#each types as t}
+                                            <option value="{t.type}">{t.type}</option>
+                                            {/each}
                                         </select>
                                     </div>
                                     <button type="button" class="btn btn-outline-primary text-nowrap" on:click={() => window.location.href = '/super-admin/activity/manage-type'}>
@@ -116,9 +178,13 @@
 										</tr>
 									</thead>
                                     <tbody>
+                                        {#if activities.length > 0}
+                                        {#if pagination(activities, currentPage, showRowData).length == 0}
+                                        {returnNada(currentPage = currentPage-1)}
+                                        {/if}
                                         {#each pagination(activities, currentPage, showRowData) as a, i}
                                         <tr>
-                                            <td>{a.numbering}</td>
+                                            <td>{(showRowData*(currentPage-1)) + i+1}</td>
                                             <td>{a.name}</td>
                                             <td>{a.batch_name}</td>
                                             <td>{a.program_name}</td>
@@ -134,12 +200,15 @@
                                             </td>
                                         </tr>
                                         {/each}
+                                        {:else}
+                                        <tr><td colspan='7' class="text-center">No Data</td></tr>
+                                        {/if}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    <Pagination bind:currentPage={currentPage} bind:dataList={activities} showRowData={showRowData} position='end'/>
+                    <Pagination bind:currentPage={currentPage} bind:dataList={activities} showRowData={showRowData}/>
                 </div>
                 {/if}
             </div>

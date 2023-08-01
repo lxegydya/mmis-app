@@ -1,11 +1,59 @@
 <script>
+// @ts-nocheck
+
 	import Sidebar from '../../../../components/sidebar.svelte';
 	import Navbar from '../../../../components/navbar.svelte';
     import Footer from '../../../../components/footer.svelte';
 	import jquery from 'jquery';
 	import ApiController from '../../../../ApiController';
+    import swal from 'sweetalert';
 
     let createBatch = () => {
+        if(jquery('#batch-name').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Batch Name!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+        if(jquery('#batch-start').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please select Date for Start of the Batch!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+        if(jquery('#batch-end').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please select Date for End of the Batch!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
         ApiController({
             method:"POST",
             endpoint:`batch/create`,
@@ -16,8 +64,20 @@
             }
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert('Batch Created!')
-                window.location.href = '/super-admin/batch'
+                swal({
+                    title : "Data Created Successfully!", 
+                    text : "Your new Batch data has been saved!", 
+                    icon: "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/batch'
+                })
             }
         })
     }
@@ -30,9 +90,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="batch" />
+	<Sidebar activePage="batch" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -42,7 +102,7 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/batch'
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Batches /</span
 					> Create
@@ -84,9 +144,12 @@
                                         />
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary" on:click={() => {
+                                <button class="btn btn-outline-secondary" on:click={() => {
+                                    window.location.href = '/super-admin/batch'
+                                }}>Cancel</button>
+                                <button class="btn btn-primary" on:click={() => {
                                     createBatch()
-                                }}>Send</button>
+                                }}>Create</button>
 							</div>
 						</div>
 					</div>

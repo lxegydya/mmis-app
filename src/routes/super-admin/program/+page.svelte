@@ -7,6 +7,12 @@
 	import ApiController from "../../../ApiController";
 	import { onMount } from "svelte";
 	import jquery from "jquery";
+	import Pagination from "../../../components/pagination.svelte";
+	import pagination from "../../../CustomPagination";
+	import returnNada from "../../../CustomReturnNada";
+
+	let currentPage = 1
+	let showRowData = 10
 
 	let programList = null
 	let programReal = null
@@ -15,6 +21,7 @@
 	let ongoingProgram = null
 	let programCategories = null
 	let programStatus = null
+	let batches = null
 
 	let status = false
 
@@ -23,6 +30,7 @@
 			method:"GET",
 			endpoint:`programs`
 		}).then(response => {
+			batches = response.data.data.batches
 			programTotal = response.data.data.program_total
 			ongoingProgram = response.data.data.ongoing_program
 			programCategories = response.data.data.categories
@@ -34,16 +42,66 @@
 	}
 
 	let deleteProgram = program_id => {
-		ApiController({
-			method:"POST",
-			endpoint:`program/delete/${program_id}`,
-		}).then(response => {
-			if(response.data.msg == 'success'){
-				alert("Program Deleted!")
-				getPrograms()
+		swal({
+			title: "Are you sure?",
+			text: "Once deleted, you will not be able to recover this data!",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes Sure!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((willDelete) => {
+			if (willDelete) {
+				ApiController({
+					method:"POST",
+					endpoint:`program/delete/${program_id}`,
+				}).then(response => {
+					if(response.data.msg == 'success'){
+						swal("Poof! Data has been deleted!", {
+							icon: "success",
+							button: {
+								text : 'Okay!',
+								value : true,
+								visible : true,
+								className : 'btn btn-primary',
+								closeModal : true
+							}
+						})
+						getPrograms()
+					}
+				})
 			}
 		})
 	}
+
+	let filterProgram = () => {
+		currentPage = 1
+        programList = programReal
+        let tempProgram = programList
+        let targetName = jquery('#filter-name').val().toLowerCase()
+        let targetBatch = jquery('#filter-batch').val().toLowerCase()
+        let targetCategory = jquery('#filter-category').val().toLowerCase()
+
+        tempProgram = tempProgram.filter(m => {
+            return m.program_name.toLowerCase().includes(targetName) &&
+                m.batch_name.toLowerCase().includes(targetBatch) &&
+                m.program_categorie.toLowerCase().includes(targetCategory)
+        })
+
+        programList = tempProgram
+    }
 
 	onMount(async () => {
 		getPrograms()
@@ -56,70 +114,64 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="program" />
+	<Sidebar activePage="program" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">Programs</h4>
 				{#if status}
 				<div class="row">
-					<div class="col-lg-2 col-md-2 col-6 mb-4">
+					<div class="col-lg-3 col-md-2 col-6 mb-4">
 						<div class="card">
 							<div class="card-body">
-								<div class="card-title d-flex align-items-start justify-content-between">
-									<div class="avatar flex-shrink-0">
-										<img
-											src="/img/icons/unicons/chart-success.png"
-											alt="chart success"
-											class="rounded"
-										/>
+								<div class="d-flex flex-row justify-content-between align-items-center">
+									<div class="">
+										<span class="fw-semibold d-block">Program Total</span>
+										<div class="d-flex align-items-end gap-2">
+											<h3 class="mb-0">{programTotal < 10 ? '0' + programTotal : programTotal}</h3>
+											<span class="fw-light d-block">Programs</span>
+										</div>
 									</div>
-								</div>
-								<span class="fw-semibold d-block mb-1">Program Total</span>
-								<div class="d-flex align-items-center gap-2">
-									<h3 class="card-title mb-2">{programTotal < 10 ? '0' + programTotal : programTotal}</h3>
-									<span class="fw-light d-block mb-1">Programs</span>
+									<div class="d-flex align-items-center justify-content-center p-2">
+										<i class='tf-icons bx bx-md bx-extension'></i>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-2 col-md-2 col-6 mb-4">
+					<div class="col-lg-3 col-md-2 col-6 mb-4">
 						<div class="card">
 							<div class="card-body">
-								<div class="card-title d-flex align-items-start justify-content-between">
-									<div class="avatar flex-shrink-0">
-										<img
-											src="/img/icons/unicons/chart-success.png"
-											alt="chart success"
-											class="rounded"
-										/>
+								<div class="d-flex flex-row justify-content-between align-items-center">
+									<div class="">
+										<span class="fw-semibold d-block">Ongoing Program</span>
+										<div class="d-flex align-items-end gap-2">
+											<h3 class="mb-0">{ongoingProgram < 10 ? '0' + ongoingProgram : ongoingProgram}</h3>
+											<span class="fw-light d-block">Programs</span>
+										</div>
 									</div>
-								</div>
-								<span class="fw-semibold d-block mb-1">Ongoing Program</span>
-								<div class="d-flex align-items-center gap-2">
-									<h3 class="card-title mb-2">{ongoingProgram < 10 ? '0' + ongoingProgram : ongoingProgram}</h3>
-									<span class="fw-light d-block mb-1">Programs</span>
+									<div class="d-flex align-items-center justify-content-center p-2">
+										<i class='tf-icons bx bx-md bxs-extension'></i>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="col-lg-2 col-md-2 col-6 mb-4">
+					<div class="col-lg-3 col-md-2 col-6 mb-4">
 						<div class="card">
 							<div class="card-body">
-								<div class="card-title d-flex align-items-start justify-content-between">
-									<div class="avatar flex-shrink-0">
-										<img
-											src="/img/icons/unicons/chart-success.png"
-											alt="chart success"
-											class="rounded"
-										/>
+								<div class="d-flex flex-row justify-content-between align-items-center">
+									<div class="">
+										<span class="fw-semibold d-block">Program Category</span>
+										<div class="d-flex align-items-end gap-2">
+											<h3 class="mb-0">{programCategories.length < 10 ? '0' + programCategories.length : programCategories.length}</h3>
+											<span class="fw-light d-block">Categories</span>
+										</div>
 									</div>
-								</div>
-								<span class="fw-semibold d-block mb-1">Program Category</span>
-								<div class="d-flex align-items-center gap-2">
-									<h3 class="card-title mb-2">{programCategories.length < 10 ? '0' + programCategories.length : programCategories.length}</h3>
-									<span class="fw-light d-block mb-1">Categories</span>
+									<div class="d-flex align-items-center justify-content-center p-2">
+										<i class='tf-icons bx bx-md bx-category'></i>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -132,29 +184,21 @@
                                 <h5 class="card-header">Programs</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Program Name">
+                                        <input type="text" class="form-control" id="filter-name" placeholder="Program Name" on:keyup={() => {filterProgram()}}>
                                     </div>
 									<div class="input-group">
-                                        <select id="filter-category" class="form-select">
+                                        <select id="filter-batch" class="form-select" on:change={() => {filterProgram()}}>
                                             <option value="" selected>All Batch</option>
-                                            <option value="Upcoming">Upcoming</option>
-                                            <option value="Ongoing">Ongoing</option>
-                                            <option value="Finished">Finished</option>
-                                        </select>
-                                    </div>
-									<div class="input-group">
-                                        <select id="filter-category" class="form-select">
-                                            <option value="" selected>All Category</option>
-                                            {#each programCategories as cat}
-                                            <option value="{cat}">{cat}</option>
+											{#each batches as b}
+                                            <option value="{b.batch_name}">{b.batch_name} | {b.batch_status}</option>
 											{/each}
                                         </select>
                                     </div>
-                                    <div class="input-group">
-                                        <select id="filter-status" class="form-select">
-                                            <option value="" selected>All Status</option>
-											{#each programStatus as stat}
-                                            <option value="{stat}">{stat}</option>
+									<div class="input-group">
+                                        <select id="filter-category" class="form-select" on:change={() => {filterProgram()}}>
+                                            <option value="" selected>All Category</option>
+                                            {#each programCategories as cat}
+                                            <option value="{cat}">{cat}</option>
 											{/each}
                                         </select>
                                     </div>
@@ -177,12 +221,15 @@
 									</thead>
 									<tbody>
 										{#if programList.length > 0}
-										{#each programList as p, i}
+										{#if pagination(programList, currentPage, showRowData).length == 0}
+                                        {returnNada(currentPage = currentPage-1)}
+                                        {/if}
+										{#each pagination(programList, currentPage, showRowData) as p, i}
 										<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 										<tr id="data-{p.id}" on:mouseover={() => {
 											jquery(`#data-${p.id}`).css('cursor', 'pointer')
 										}}>
-											<td>{i+1}</td>
+											<td>{p.number}</td>
 											<td>{p.program_name}</td>
 											<td>{p.batch_name}</td>
 											<td>{p.program_categorie}</td>
@@ -207,12 +254,17 @@
 											</td>
 										</tr>
 										{/each}
+										{:else}
+										<tr>
+											<td class="text-center" colspan="6">No Data</td>
+										</tr>
 										{/if}
 									</tbody>
 								</table>
 							</div>
 						</div>
 					</div>
+					<Pagination bind:currentPage={currentPage} bind:dataList={programList} showRowData={showRowData} />
 				</div>
 				{/if}
             </div>

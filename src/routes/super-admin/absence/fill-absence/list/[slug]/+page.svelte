@@ -14,6 +14,8 @@
 	let listData = null
 	let status = false
 
+	let program = null
+
 	let absenceList = []
 
 	let getListData = () => {
@@ -21,8 +23,8 @@
 			method:"POST",
 			endpoint:`super-admin/absence/${data.params.slug}`
 		}).then(response => {
+			program = response.data.program
 			listData = response.data.data
-			console.log(listData)
 			status = true
 		})
 	}
@@ -37,7 +39,18 @@
 			}
 		}).then(response => {
 			if(response.data.msg = 'success'){
-				alert('Saved!')
+				swal({
+                    title : "Absence Saved Successfully!", 
+                    text : "Your Mentees Absence have been recorded!", 
+                    icon: "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
 				absenceList = []
 				listData.groups.forEach(g => {
 					jquery(`#all-present-${g.id}`).html('All Present')
@@ -58,9 +71,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="absence" />
+	<Sidebar activePage="absence" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<div class="d-flex flex-row justify-content-between">
@@ -73,7 +86,7 @@
 							on:click={() => {
 								window.history.back();
 							}}
-							on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Absences / Fill Absences /</span
+							on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Absences {status ? `/ [${program.batch_name}] ${program.program_name} /` : ''}</span
 						> {status ? listData.activity.name + ' (' + toDate(listData.activity.date) + ')' : ''}
 					</h4>
 					{#if absenceList.length > 0}

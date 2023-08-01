@@ -7,13 +7,21 @@
 	import { onMount } from 'svelte';
 	import ApiController from '../../../ApiController';
 	import jquery from 'jquery';
+	import toDate from '../../../CustomTime';
+	import swal from 'sweetalert';
+	import Pagination from '../../../components/pagination.svelte';
+	import pagination from '../../../CustomPagination';
+	import returnNada from '../../../CustomReturnNada';
 
-    let loginStatus = false
+	let currentPage = 1
+	let showRowData = 10
 
 	let totalBatch = null
 	let ongoingBatch = null
     let batchList = null
 	let batchReal = null
+
+	let status = false
 
     let getBatchList = () => {
         ApiController({
@@ -22,49 +30,70 @@
         }).then(response => {
 			totalBatch = response.data.data.batch_total
 			ongoingBatch = response.data.data.ongoing_batch
-            batchList = response.data.data.batches
 			batchReal = response.data.data.batches
+            batchList = batchReal
+			status = true
         })
     }
 
 	let filterBatch = () => {
+		currentPage = 1
 		let batchTemp = batchReal
-
 		let targetName = jquery('#filter-name').val()
 		let targetStatus = jquery('#filter-status').val()
-
-		console.log(targetName)
-		console.log(targetStatus)
 
 		batchList = batchTemp.filter(elm => {
 			return elm.batch_name.toLowerCase().includes(targetName) &&
 					elm.batch_status.includes(targetStatus)
 		})
-
-		console.log(batchList)
 	}
 
 	let deleteBatch = batch_id => {
-		ApiController({
-			method:"POST",
-			endpoint:`batch/delete/${batch_id}`,
-		}).then(response => {
-			if(response.data.msg == 'success'){
-				alert("Batch Deleted!")
-				window.location.reload()
+		swal({
+			title: "Are you sure?",
+			text: "Once deleted, you will not be able to recover this data!",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes Sure!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((willDelete) => {
+			if (willDelete) {
+				ApiController({
+					method:"POST",
+					endpoint:`batch/delete/${batch_id}`,
+				}).then(response => {
+					if(response.data.msg == 'success'){
+						swal("Poof! Data has been deleted!", {
+							icon: "success",
+							button: {
+								text : 'Okay!',
+								value : true,
+								visible : true,
+								className : 'btn btn-primary',
+								closeModal : true
+							}
+						})
+						getBatchList()
+					}
+				})
 			}
 		})
 	}
 
-	onMount(async () => {
-		// @ts-ignore
-		let loginData = JSON.parse(window.localStorage.getItem('login-data'));
-		if (loginData) {
-			loginStatus = true;
-		} else {
-			window.location.href = '/';
-		}
-        
+	onMount(async () => {  
         getBatchList()
 	})
 </script>
@@ -75,56 +104,53 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="batch" />
+	<Sidebar activePage="batch" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
 					Batches
 				</h4>
+				{#if  status}
 				<div class="row">
 					<div class="col-lg-12 col-md-6 col-12">
 						<div class="row">
-							<div class="col-lg-2 col-md-2 col-6 mb-4">
+							<div class="col-lg-3 col-md-2 col-6 mb-4">
 								<div class="card">
 									<div class="card-body">
-										<div class="card-title d-flex align-items-start justify-content-between">
-											<div class="avatar flex-shrink-0">
-												<img
-													src="/img/icons/unicons/chart-success.png"
-													alt="chart success"
-													class="rounded"
-												/>
+										<div class="d-flex flex-row justify-content-between align-items-center">
+											<div class="">
+												<span class="fw-semibold d-block">Batch Total</span>
+												<div class="d-flex align-items-end gap-2">
+													{#if totalBatch != null}
+													<h3 class="mb-0">{totalBatch < 10 ? '0' + totalBatch : totalBatch}</h3>
+													{/if}
+													<span class="fw-light d-block">Batches</span>
+												</div>
 											</div>
-										</div>
-										<span class="fw-semibold d-block mb-1">Batch Total</span>
-										<div class="d-flex align-items-center gap-2">
-											{#if totalBatch != null}
-											<h3 class="card-title mb-2">{totalBatch < 10 ? '0' + totalBatch : totalBatch}</h3>
-											{/if}
-											<span class="fw-light d-block mb-1">Batches</span>
+											<div class="d-flex align-items-center justify-content-center p-2">
+												<i class='tf-icons bx bx-md bx-folder'></i>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-							<div class="col-lg-2 col-md-2 col-6 mb-4">
+							<div class="col-lg-3 col-md-2 col-6 mb-4">
 								<div class="card">
 									<div class="card-body">
-										<div class="card-title d-flex align-items-start justify-content-between">
-											<div class="avatar flex-shrink-0">
-												<img
-													src="/img/icons/unicons/chart-success.png"
-													alt="chart success"
-													class="rounded"
-												/>
+										<div class="d-flex flex-row justify-content-between align-items-center">
+											<div class="">
+												<span class="fw-semibold d-block">Ongoing Batch</span>
+												<div class="d-flex align-items-end gap-2">
+													{#if ongoingBatch != null}
+													<h3 class="mb-0">{ongoingBatch}</h3>
+													{/if}
+												</div>
 											</div>
-										</div>
-										<span class="fw-semibold d-block mb-1">Ongoing Batch</span>
-										<div class="d-flex align-items-center gap-2">
-											{#if ongoingBatch != null}
-											<h3 class="card-title mb-2">{ongoingBatch}</h3>
-											{/if}
+											<div class="d-flex align-items-center justify-content-center p-2">
+												<i class='tf-icons bx bx-md bxs-folder'></i>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -168,17 +194,19 @@
 										</tr>
 									</thead>
 									<tbody>
-                                        {#if batchList != null}
 										{#if batchList.length > 0}
-                                        {#each batchList as b, i}
+										{#if pagination(batchList, currentPage, showRowData).length == 0}
+                                        {returnNada(currentPage = currentPage-1)}
+                                        {/if}
+                                        {#each pagination(batchList, currentPage, showRowData) as b, i}
 										<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 										<tr id="data-{b.id}" on:mouseover={() => {
 											jquery(`#data-${b.id}`).css('cursor', 'pointer')
-										}} on:click={() => window.location.href = `/super-admin/batch/detail/${b.id}`}>
-											<th scope="row">{i+1}</th>
+										}}>
+											<th scope="row">{b.number}</th>
 											<td>{b.batch_name}</td>
-											<td>{b.batch_start}</td>
-											<td>{b.batch_end}</td>
+											<td>{toDate(b.batch_start)}</td>
+											<td>{toDate(b.batch_end)}</td>
 											<td>{b.batch_status}</td>
 											<td class="d-flex align-items-center gap-2">
                                                 <button type="button" class="btn btn-sm btn-outline-warning" on:click={(event) => {
@@ -197,17 +225,14 @@
 											<td colspan="6" class="text-center">No Data</td>
 										</tr>
 										{/if}
-										{:else}
-										<tr>
-											<td colspan="6" class="text-center">No Data</td>
-										</tr>
-                                        {/if}
 									</tbody>
 								</table>
 							</div>
 						</div>
+						<Pagination bind:currentPage={currentPage} bind:dataList={batchList} showRowData={showRowData} />
 					</div>
 				</div>
+				{/if}
 			</div>
 		</div>
 		<Footer/>

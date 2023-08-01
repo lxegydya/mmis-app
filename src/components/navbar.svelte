@@ -2,18 +2,90 @@
 	// @ts-nocheck
 	import { onMount } from 'svelte';
 	import { fly, scale } from 'svelte/transition'
+	import Cookie from 'js-cookie'
+	import swal from 'sweetalert';
+
+	export let role
 
 	let loginData = null
 
 	let logout = () => {
-		window.localStorage.clear()
-		window.location.reload()
+		swal({
+			title: "Leaving So Soon?",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((isLogout) => {
+			if (isLogout) {
+				Cookie.remove('role')
+				Cookie.remove('username')
+				Cookie.remove('email')
+				
+				if(role == 'mentor'){
+					Cookie.remove('token')
+					Cookie.remove('image')
+				}
+
+				swal({
+					title: "Logout Successfully!",
+					text: 'See you soon 👋',
+					icon: "success"
+				}).then(() => {
+					window.location.reload()
+				})
+			}
+		})
 	}
 
 	onMount(async () => {
-		loginData = JSON.parse(window.localStorage.getItem('login-data'))
-		if (!loginData) {
-			window.location.href = '/';
+		if(Cookie.get('role') == undefined){
+			window.location.href = '/'
+		}else{
+			if(Cookie.get('role') == 'admin' && role != 'admin'){
+				swal({
+					title: "Access Denied!",
+					text: 'You dont have access to this URL',
+					icon: "warning",
+					button: {
+						text : 'Oops Sorry!',
+						value : true,
+						visible : true,
+						className : 'btn btn-primary',
+						closeModal : true
+					}
+				}).then(action => {
+					window.location.href = '/super-admin/dashboard'
+				})
+			}else if(Cookie.get('role') == 'mentor' && role != 'mentor'){
+				swal({
+					title: "Access Denied!",
+					text: 'You dont have access to this URL',
+					icon: "warning",
+					button: {
+						text : 'Oops Sorry!',
+						value : true,
+						visible : true,
+						className : 'btn btn-primary',
+						closeModal : true
+					}
+				}).then(action => {
+					window.location.href = '/mentor/dashboard'
+				})
+			}
 		}
 	})
 </script>
@@ -28,7 +100,7 @@
 	<div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
 		<!-- Search -->
 		<div class="navbar-nav">
-			<p class="mb-0">Welcome, {loginData != null ? loginData.username : ''}</p>
+			<p class="mb-0">Welcome, {Cookie.get('username') == undefined ? '' : Cookie.get('username')}</p>
 		</div>
 		<!-- /Search -->
 
@@ -37,7 +109,11 @@
 			<li class="nav-item navbar-dropdown dropdown-user dropdown">
 				<a class="nav-link dropdown-toggle hide-arrow" href="#" data-bs-toggle="dropdown">
 					<div class="avatar avatar-online">
-						<img src="/img/avatars/1.png" class="w-px-40 h-auto rounded-circle" alt=""/>
+						{#if role == 'admin'}
+						<img src="/img/avatars/user.png" class="rounded" alt=""/>
+						{:else}
+						<img src="{Cookie.get('image') == null ? '' : `http://127.0.0.1/mmis-api/public/${Cookie.get('image')}`}" class="rounded" alt=""/>
+						{/if}
 					</div>
 				</a>
 				<ul class="dropdown-menu dropdown-menu-end">
@@ -46,12 +122,16 @@
 							<div class="d-flex">
 								<div class="flex-shrink-0 me-3">
 									<div class="avatar avatar-online">
-										<img src="/img/avatars/1.png" class="w-px-40 h-auto rounded-circle" alt="" />
+										{#if role == 'admin'}
+										<img src="/img/avatars/user.png" class="rounded" alt=""/>
+										{:else}
+										<img src="{Cookie.get('image') == null ? '' : `http://127.0.0.1/mmis-api/public/${Cookie.get('image')}`}" class="rounded" alt=""/>
+										{/if}
 									</div>
 								</div>
 								<div class="flex-grow-1">
-									<span class="fw-semibold d-block">John Doe</span>
-									<small class="text-muted">Admin</small>
+									<span class="fw-semibold d-block">{Cookie.get('username') == undefined ? '' : Cookie.get('username')}</span>
+									<small class="text-muted">{Cookie.get('role') == undefined ? '' : Cookie.get('role')[0].toUpperCase() + Cookie.get('role').slice(1)}</small>
 								</div>
 							</div>
 						</a>
@@ -59,38 +139,28 @@
 					<li>
 						<div class="dropdown-divider" />
 					</li>
+					{#if Cookie.get('role') != undefined && Cookie.get('role') == 'mentor'}
 					<li>
-						<a class="dropdown-item" href="#">
+						<a class="dropdown-item" href="/mentor/profile">
 							<i class="bx bx-user me-2" />
 							<span class="align-middle">My Profile</span>
 						</a>
 					</li>
 					<li>
-						<a class="dropdown-item" href="#">
+						<a class="dropdown-item" href="/mentor/setting/password">
 							<i class="bx bx-cog me-2" />
 							<span class="align-middle">Settings</span>
 						</a>
 					</li>
 					<li>
-						<a class="dropdown-item" href="#">
-							<span class="d-flex align-items-center align-middle">
-								<i class="flex-shrink-0 bx bx-credit-card me-2" />
-								<span class="flex-grow-1 align-middle">Billing</span>
-								<span
-									class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20"
-									>4</span
-								>
-							</span>
-						</a>
-					</li>
-					<li>
 						<div class="dropdown-divider" />
 					</li>
+					{/if}
 					<li>
-						<a class="dropdown-item" href="#" on:click={() => logout()}>
+						<button class="dropdown-item" on:click={() => logout()}>
 							<i class="bx bx-power-off me-2" />
 							<span class="align-middle">Log Out</span>
-						</a>
+						</button>
 					</li>
 				</ul>
 			</li>

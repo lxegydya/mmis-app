@@ -9,6 +9,8 @@
     import { onMount } from "svelte";
     import toDate from "../../../CustomTime";
     import pagination from "../../../CustomPagination";
+    import jquery from "jquery";
+	import returnNada from "../../../CustomReturnNada";
 
     let batches = null
     let programs = null
@@ -31,20 +33,73 @@
             assignmentsReal = response.data.data.assignments
             assignments = assignmentsReal
             status = true
+            console.log(assignments)
         })
     }
 
     let deleteAssignment = id => {
-        ApiController({
-            method:"POST",
-            endpoint:'assignment/delete',
-            datas:{id}
-        }).then(response => {
-            if(response.data.msg == 'success'){
-                alert('Assignment Deleted!')
-                getAssignments()
+        swal({
+			title: "Are you sure?",
+			text: "Once deleted, you will not be able to recover this data!",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes Sure!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((willDelete) => {
+			if (willDelete) {
+                ApiController({
+                    method:"POST",
+                    endpoint:'assignment/delete',
+                    datas:{id}
+                }).then(response => {
+                    if(response.data.msg == 'success'){
+                        swal("Poof! Data has been deleted!", {
+							icon: "success",
+							button: {
+								text : 'Okay!',
+								value : true,
+								visible : true,
+								className : 'btn btn-primary',
+								closeModal : true
+							}
+						})
+                        getAssignments()
+                    }
+                })
             }
         })
+    }
+
+    let filterAssignment = () => {
+        currentPage = 1
+        assignments = assignmentsReal
+        let tempAssignment = assignments
+        let targetName = jquery('#filter-name').val().toLowerCase()
+        let targetBatch = jquery('#filter-batch').val().toLowerCase()
+        let targetProgram = jquery('#filter-program').val().toLowerCase()
+        let targetType = jquery('#filter-type').val().toLowerCase()
+
+        tempAssignment = tempAssignment.filter(m => {
+            return m.name.toLowerCase().includes(targetName) &&
+                m.batch_name.toLowerCase().includes(targetBatch) &&
+                m.program_name.toLowerCase().includes(targetProgram) &&
+                m.type.toLowerCase().includes(targetType)
+        })
+
+        assignments = tempAssignment
     }
 
     onMount(async () => {
@@ -58,9 +113,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-    <Sidebar activePage="assignment" />
+    <Sidebar activePage="assignment" role='admin'/>
     <div class="w-100 d-flex flex-column">
-        <Navbar />
+        <Navbar role='admin'/>
         <div class="wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
                 <h4 class="fw-bold py-3 mb-4">
@@ -74,10 +129,10 @@
                                 <h5 class="card-header">Assignments</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Activity Name">
+                                        <input type="text" class="form-control" id="filter-name" placeholder="Activity Name" on:keyup={() => {filterAssignment()}}>
                                     </div>
                                     <div class="input-group">
-                                        <select id="filter-category" class="form-select">
+                                        <select id="filter-batch" class="form-select" on:change={() => {filterAssignment()}}>
                                             <option value="" selected>All Batches</option>
                                             {#each batches as b}
                                                 <option value="{b.batch_name}">{b.batch_name}</option>
@@ -85,7 +140,7 @@
                                         </select>
                                     </div>
                                     <div class="input-group">
-                                        <select id="filter-category" class="form-select">
+                                        <select id="filter-program" class="form-select" on:change={() => {filterAssignment()}}>
                                             <option value="" selected>All Programs</option>
                                             {#each programs as p}
                                             <option value="{p.program_name}">{p.program_name}</option>
@@ -93,7 +148,7 @@
                                         </select>
                                     </div>
                                     <div class="input-group">
-                                        <select id="filter-category" class="form-select">
+                                        <select id="filter-type" class="form-select" on:change={() => {filterAssignment()}}>
                                             <option value="" selected>All Type</option>
                                             {#each types as t}
                                             <option value="{t.type}">{t.type}</option>
@@ -123,9 +178,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {#if pagination(assignments, currentPage, showRowData).length == 0}
+                                        {returnNada(currentPage = currentPage-1)}
+                                        {/if}
                                         {#each pagination(assignments, currentPage, showRowData) as a, i}
                                         <tr>
-                                            <td class="text-center">{i+1}</td>
+                                            <td class="text-center">{(showRowData*(currentPage-1)) + i+1}</td>
                                             <td>{a.name}</td>
                                             <td style="max-width: 350px; white-space: wrap !important;">{a.description}</td>
                                             <td class="text-center">{a.batch_name}</td>
@@ -147,7 +205,7 @@
                             </div>
                         </div>
                     </div>
-                    <Pagination bind:currentPage={currentPage} bind:dataList={assignments} showRowData={showRowData} position='end'/>
+                    <Pagination bind:currentPage={currentPage} bind:dataList={assignments} showRowData={showRowData}/>
                 </div>
                 {/if}
             </div>

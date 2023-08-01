@@ -6,7 +6,15 @@
     import Navbar from "../../../components/navbar.svelte";
     import Sidebar from "../../../components/sidebar.svelte";
     import Footer from "../../../components/footer.svelte";
+    import jquery from "jquery";
+    import Pagination from "../../../components/pagination.svelte";
+    import pagination from "../../../CustomPagination";
+	import returnNada from "../../../CustomReturnNada";
 
+    let currentPage = 1
+    let showRowData = 10
+
+    let mentorsListReal = null
     let mentorsList = null
     let status = false
 
@@ -15,17 +23,69 @@
             method:"GET",
             endpoint:`mentors`
         }).then(response => {
-            mentorsList = response.data.data
+            mentorsListReal = response.data.data
+            mentorsList = mentorsListReal
             status = true
         })
     }
 
+    let filterMentor = () => {
+        currentPage = 1
+        mentorsList = mentorsListReal
+        let tempMentor = mentorsList
+        let targetName = jquery('#filter-name').val().toLowerCase()
+        let targetStatus = jquery('#filter-status').val().toLowerCase()
+
+        tempMentor = tempMentor.filter(m => {
+            return m.fullname.toLowerCase().includes(targetName) &&
+                m.status.toLowerCase().includes(targetStatus)
+        })
+
+        mentorsList = tempMentor
+    }
+
     let deleteMentor = mentor_id => {
-        ApiController({
-            method:"POST",
-            endpoint:`mentor/delete/${mentor_id}`
-        }).then(response => {
-            mentorsList = response.data.data
+        swal({
+			title: "Are you sure?",
+			text: "Once deleted, you will not be able to recover this data!",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes Sure!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((willDelete) => {
+			if (willDelete) {
+                ApiController({
+                    method:"POST",
+                    endpoint:`mentor/delete/${mentor_id}`
+                }).then(response => {
+                    if(response.data.msg == 'success'){
+                        swal("Poof! Data has been deleted!", {
+                            icon: "success",
+                            button: {
+                                text : 'Okay!',
+                                value : true,
+                                visible : true,
+                                className : 'btn btn-primary',
+                                closeModal : true
+                            }
+                        })
+                        getMentors()
+                    }
+                })
+            }
         })
     }
 
@@ -41,9 +101,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="mentor" />
+	<Sidebar activePage="mentor" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">Mentors</h4>
@@ -55,13 +115,10 @@
                                 <h5 class="card-header">Mentors</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Mentor Name">
+                                        <input type="text" class="form-control" id="filter-name" placeholder="Mentor Name" on:keyup={() => {filterMentor()}}>
                                     </div>
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-skill" placeholder="Skills">
-                                    </div>
-                                    <div class="input-group input-group-merge">
-                                        <select id="filter-status" class="form-select">
+                                        <select id="filter-status" class="form-select" on:change={() => {filterMentor()}}>
                                             <option value="" selected>All Status</option>
                                             <option value="Active">Active</option>
                                             <option value="Non-Active">Non-Active</option>
@@ -79,17 +136,19 @@
 											<th>NO.</th>
 											<th>Mentor Name</th>
 											<th>Skills</th>
-											<th>Number of Groups</th>
+											<th class="text-center">Number of Groups</th>
 											<th>Status</th>
 											<th>Action</th>
 										</tr>
 									</thead>
 									<tbody>
-                                        {#if mentorsList != null || mentorsList != undefined}
                                         {#if mentorsList.length > 0}
-                                        {#each mentorsList as m, i}
+                                        {#if pagination(mentorsList, currentPage, showRowData).length == 0}
+                                        {returnNada(--currentPage)}
+                                        {/if}
+                                        {#each pagination(mentorsList, currentPage, showRowData) as m, i}
                                         <tr>
-                                            <td>{i+1}</td>
+                                            <td>{m.number}</td>
                                             <td>{m.fullname}</td>
                                             <td>
                                                 {#each m.skill as s, i}
@@ -100,7 +159,7 @@
                                                 {/if}
                                                 {/each}
                                             </td>
-                                            <td></td>
+                                            <td class="text-center">{m.group_count}</td>
                                             <td class="{m.status == 'Active' ? 'text-success' : 'text-danger'}">{m.status}</td>
                                             <td>
                                                 <a href="/super-admin/mentor/edit/{m.id}" class="btn btn-sm btn-outline-warning">Edit</a>
@@ -110,12 +169,16 @@
                                             </td>
                                         </tr>
                                         {/each}
-                                        {/if}
+                                        {:else}
+                                        <tr>
+                                            <td class="text-center" colspan="6">No Data</td>
+                                        </tr>
                                         {/if}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
+                        <Pagination bind:currentPage={currentPage} bind:dataList={mentorsList} showRowData={showRowData} />
                     </div>
                 </div>
                 {/if}

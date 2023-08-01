@@ -9,6 +9,7 @@
 	import { onMount } from "svelte";
 	import jquery from "jquery";
 	import pagination from "../../../CustomPagination";
+	import returnNada from "../../../CustomReturnNada";
 
     let menteesReal = null
     let menteesList = null
@@ -25,10 +26,6 @@
             endpoint: `mentees`
         }).then(response => {
             menteesReal = response?.data.data.mentees.sort((a, b) => a.name < b.name ? -1 : 1)
-            menteesReal.forEach((m, i) => {
-                m.numbering = ++i
-            })
-
             menteesList = menteesReal
 
             menteesTotal = response?.data.data.mentees_total
@@ -38,14 +35,47 @@
     }
 
     let deleteMentee = menteeId => {
-        ApiController({
-            method:"POST",
-            endpoint:`mentee/delete`,
-            datas:{mentee_id : menteeId}
-        }).then(response => {
-            if(response?.data.msg == "success"){
-                alert(`Mentee Deleted!`)
-                window.location.href = '/super-admin/mentee'
+        swal({
+			title: "Are you sure?",
+			text: "Once deleted, you will not be able to recover this data!",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes Sure!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((willDelete) => {
+			if (willDelete) {
+                ApiController({
+                    method:"POST",
+                    endpoint:`mentee/delete`,
+                    datas:{mentee_id : menteeId}
+                }).then(response => {
+                    if(response?.data.msg == "success"){
+                        swal("Poof! Data has been deleted!", {
+							icon: "success",
+							button: {
+								text : 'Okay!',
+								value : true,
+								visible : true,
+								className : 'btn btn-primary',
+								closeModal : true
+							}
+						})
+                        getMentees()
+                    }
+                })
             }
         })
     }
@@ -61,13 +91,25 @@
             sendForm:true
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert(`Mentees Created!`)
-                window.location.href = '/super-admin/mentee'
+                swal({
+                    title : "Data Imported Successfully!", 
+                    text : `Your new Mentees data has been added!`, 
+                    icon: "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+                getMentees()
             }
         })
     }
 
     let filterMentee = () => {
+        currentPage = 1
         menteesList = menteesReal
         let tempMentees = menteesList
         let targetName = jquery('#filter-name').val().toLowerCase()
@@ -76,10 +118,6 @@
         tempMentees = tempMentees.filter(m => {
             return m.name.toLowerCase().includes(targetName) &&
                 m.university.toLowerCase().includes(targetUniversity)
-        })
-
-        tempMentees.forEach((m, i) => {
-            m.numbering = ++i
         })
 
         menteesList = tempMentees
@@ -96,9 +134,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="mentee" />
+	<Sidebar activePage="mentee" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -106,41 +144,39 @@
 				</h4>
                 {#if status}
                 <div class="row">
-                    <div class="col-lg-2 col-md-4 col-6 mb-4">
+                    <div class="col-lg-3 col-md-4 col-6 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <div class="card-title d-flex align-items-start justify-content-between">
-                                    <div class="avatar flex-shrink-0">
-                                        <img
-                                            src="/img/icons/unicons/chart-success.png"
-                                            alt="chart success"
-                                            class="rounded"
-                                        />
-                                    </div>
-                                </div>
-                                <span class="fw-semibold d-block mb-1">Mentees Total</span>
-                                <div class="d-flex align-items-center gap-2">
-                                    <h3 class="card-title mb-2">{menteesTotal < 10 ? '0' + menteesTotal : menteesTotal}</h3><span class="fw-light d-block mb-1">Mentees</span>
-                                </div>
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+									<div class="">
+										<span class="fw-semibold d-block">Mentees Total</span>
+										<div class="d-flex align-items-end gap-2">
+											<h3 class="mb-0">{menteesTotal < 10 ? '0' + menteesTotal : menteesTotal}</h3>
+											<span class="fw-light d-block">Mentees</span>
+										</div>
+									</div>
+									<div class="d-flex align-items-center justify-content-center p-2">
+										<i class='tf-icons bx bx-md bx-group'></i>
+									</div>
+								</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-2 col-md-4 col-6 mb-4">
+                    <div class="col-lg-3 col-md-4 col-6 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <div class="card-title d-flex align-items-start justify-content-between">
-                                    <div class="avatar flex-shrink-0">
-                                        <img
-                                            src="/img/icons/unicons/chart-success.png"
-                                            alt="chart success"
-                                            class="rounded"
-                                        />
-                                    </div>
-                                </div>
-                                <span class="fw-semibold d-block mb-1">Active Mentees Total</span>
-                                <div class="d-flex align-items-center gap-2">
-                                    <h3 class="card-title mb-2">{activeMenteesTotal < 10 ? '0' + activeMenteesTotal : activeMenteesTotal}</h3><span class="fw-light d-block mb-1">Mentees</span>
-                                </div>
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+									<div class="">
+										<span class="fw-semibold d-block">Active Mentees Total</span>
+										<div class="d-flex align-items-end gap-2">
+											<h3 class="mb-0">{activeMenteesTotal < 10 ? '0' + activeMenteesTotal : activeMenteesTotal}</h3>
+											<span class="fw-light d-block">Mentees</span>
+										</div>
+									</div>
+									<div class="d-flex align-items-center justify-content-center p-2">
+										<i class='tf-icons bx bx-md bx-user-check'></i>
+									</div>
+								</div>
                             </div>
                         </div>
                     </div>
@@ -190,11 +226,14 @@
 									</thead>
 									<tbody>
                                     {#if menteesList.length > 0}
-                                    {#each pagination(menteesList, currentPage, showRowData) as m}
+                                    {#if pagination(menteesList, currentPage, showRowData).length == 0}
+                                    {returnNada(currentPage = currentPage-1)}
+                                    {/if}
+                                    {#each pagination(menteesList, currentPage, showRowData) as m, i}
                                     <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                     <tr id="data-{m.id}" on:click={() => window.location.href = `/super-admin/mentee/detail/${m.id}`}
                                         on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
-                                        <td class="text-center">{m.numbering}</td>
+                                        <td class="text-center">{m.number}</td>
                                         <td>{m.id}</td>
                                         <td>{m.name}</td>
                                         <td class="text-center">{m.gender}</td>
@@ -219,13 +258,17 @@
                                         </td>
                                     </tr>
                                     {/each}
+                                    {:else}
+                                    <tr>
+                                        <td colspan="12" class="text-center">No Data</td>
+                                    </tr>
                                     {/if}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    <Pagination bind:currentPage={currentPage} bind:dataList={menteesList} showRowData=10 position='end'/>
+                    <Pagination bind:currentPage={currentPage} bind:dataList={menteesList} showRowData=10/>
                 </div>
                 {/if}
             </div>

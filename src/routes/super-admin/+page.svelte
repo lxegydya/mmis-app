@@ -4,10 +4,31 @@
 	import { onMount } from 'svelte';
 	import ApiController from '../../ApiController';
 	import jQuery from 'jquery'
+	import swal from 'sweetalert';
+	import jquery from 'jquery';
+	import Cookie from 'js-cookie'
 
 	let loginState = null
 
 	let doLogin = () => {
+		if(jQuery('#email').val() == ''){
+			return swal({
+				title: "Opps, you forgot something!",
+				text: "Please insert your Email!",
+				icon: "error",
+				button: "Okay!",
+			})
+		}
+
+		if(jQuery('#password').val() == ''){
+			return swal({
+				title: "Opps, you forgot something!",
+				text: "Please insert your Password!",
+				icon: "error",
+				button: "Okay!",
+			})
+		}
+
 		loginState = "start"
 
 		let formdata = new FormData()
@@ -24,21 +45,28 @@
 			// @ts-ignore
 			let data = response.data.data
 			if(data.login_permission == "granted"){
+				Cookie.set('role', 'admin', {expires : 1})
+				Cookie.set('username', data.username, {expires : 1})
+				Cookie.set('email', data.email, {expires : 1})
 				window.location.href = '/super-admin/dashboard'
-				window.localStorage.setItem('login-data', JSON.stringify({
-					'email':data.email, 
-					'username':data.username
-				}))
 			}else{
-				alert('Login Failed!')
+				return swal({
+					title: "Oops, something went wrong!",
+					text: "Please enter correct both Email and Password!",
+					icon: "error",
+					button: "Okay!",
+				})
 			}
 		})
 	}
 
 	onMount(async () => {
-		let loginData = JSON.parse(window.localStorage.getItem('login-data'));
-		if (loginData) {
-			window.location.href = '/super-admin/dashboard';
+		if(Cookie.get('role') != undefined){
+			if(Cookie.get('role') == 'admin'){
+				window.location.href = '/super-admin/dashboard'
+			}else{
+				window.location.href = '/mentor/dashboard'
+			}
 		}
 	})
 </script>
@@ -55,23 +83,21 @@
 			<div class="card">
 				<div class="card-body">
 					<!-- Logo -->
-					<div class="app-brand justify-content-center">
-						<a href="index.html" class="app-brand-link gap-2">
-							<span class="app-brand-text demo text-body fw-bolder">MMIS</span>
-						</a>
+					<div class="d-flex flex-column align-items-center justify-content-center">
+						<img src="img/learningx-logo.png" alt="" width="300">
 					</div>
 					<!-- /Logo -->
-					<h4 class="mb-2">Welcome to MSIB Mentees Information System! 👋</h4>
-					<p class="mb-4">Please sign-in to your account and start the adventure</p>
+					<p class="mb-0">Welcome to MMaS Super Admin!</p>
+					<h3 class="mb-3">Mentees Management System 👋</h3>
 
 					<div class="mb-3">
-						<label for="email" class="form-label">Email or Username</label>
+						<label for="email" class="form-label">Email</label>
 						<input
 							type="text"
 							class="form-control"
 							id="email"
 							name="email-username"
-							placeholder="Enter your email or username"
+							placeholder="Email"
 						/>
 					</div>
 					<div class="mb-3 form-password-toggle">

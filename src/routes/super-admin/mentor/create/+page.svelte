@@ -1,19 +1,87 @@
 <script>
+// @ts-nocheck
+
 	import Sidebar from '../../../../components/sidebar.svelte';
 	import Navbar from '../../../../components/navbar.svelte';
     import Footer from '../../../../components/footer.svelte';
 	import jquery from 'jquery';
 	import ApiController from '../../../../ApiController';
+    import swal from 'sweetalert';
 
     let createMentor = () => {
-        if(jquery('#password').val() != jquery('#password-confirmation').val()){
-            alert('Password and Password Confirmation not match!')
-            return
+        if(jquery('#fullname').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Mentor Name!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
         }
 
-        if(jquery('#password').val() == "" || jquery('#password-confirmation').val() == ""){
-            alert('Fill the password!')
-            return
+        if(jquery('#email').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Mentor Email!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#password').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Password!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#password-confirmation').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Password Confirmation!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#password').val() != jquery('#password-confirmation').val()){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Password and Password Confirmation is Not Match!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
         }
 
         let formdata = new FormData()
@@ -31,8 +99,20 @@
             sendForm:true
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert('Mentor Created!')
-                window.location.href = '/super-admin/mentor'
+                swal({
+                    title : "Data Created Successfully!", 
+                    text : "Your new Mentor data has been saved!", 
+                    icon : "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/mentor'
+                })
             }
         })
     }
@@ -45,9 +125,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="mentor" />
+	<Sidebar activePage="mentor" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -57,7 +137,7 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/mentor'
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Mentors /</span
 					> Create
@@ -91,28 +171,14 @@
                                     <div class="col-md-6 form-password-toggle">
                                         <label for="password" class="col-form-label">Password</label>
                                         <div class="input-group input-group-merge">
-                                            <input
-                                                type="password"
-                                                id="password"
-                                                class="form-control"
-                                                name="password"
-                                                placeholder="············"
-                                                aria-describedby="password"
-                                            />
+                                            <input type="password" id="password" class="form-control" name="password" placeholder="············" />
                                             <span class="input-group-text cursor-pointer"><i class="bx bx-hide" /></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 form-password-toggle">
                                         <label for="password-confirmation" class="col-form-label">Password Confirmation</label>
                                         <div class="input-group input-group-merge">
-                                            <input
-                                                type="password"
-                                                id="password-confirmation"
-                                                class="form-control"
-                                                name="password-confirmation"
-                                                placeholder="············"
-                                                aria-describedby="password-confirmation"
-                                            />
+                                            <input type="password" id="password-confirmation" class="form-control" name="password-confirmation" placeholder="············" />
                                             <span class="input-group-text cursor-pointer"><i class="bx bx-hide" /></span>
                                         </div>
                                     </div>
@@ -125,6 +191,9 @@
                                     <label for="image" class="form-label">Profile Picture</label>
                                     <input class="form-control" type="file" id="image">
                                 </div>
+                                <button class="btn btn-outline-secondary" on:click={() => {
+                                    window.location.href = '/super-admin/mentor'
+                                }}>Cancel</button>
                                 <button type="submit" class="btn btn-primary" on:click={() => {
                                     createMentor()
                                 }}>Create</button>

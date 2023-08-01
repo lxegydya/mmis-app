@@ -22,3 +22,13 @@ body{
     background-color: #DA202A;
     border-color: #f04f57;
 }
+
+.custom-card-image{ 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;
+}
+
+.custom-card-border-radius{
+    border-radius: 0.5rem 0 0 0.5rem;
+}

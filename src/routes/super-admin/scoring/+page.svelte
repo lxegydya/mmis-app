@@ -10,9 +10,13 @@
     import pagination from "../../../CustomPagination";
     import toDate from "../../../CustomTime";
 	import ApiController from "../../../ApiController";
+	import returnNada from "../../../CustomReturnNada";
 
     let currentPage = 1
+    let showRowData = 10
+
     let batches = null
+    let programsReal = null
     let programs = null
     let status = false
 
@@ -22,9 +26,25 @@
             endpoint:'assignment/program'
         }).then(response => {
             batches = response?.data.data.batches
+            programsReal = response?.data.data.programs
             programs = response?.data.data.programs
             status = true
         })
+    }
+
+    let filterProgram = () => {
+        currentPage = 1
+        programs = programsReal
+        let tempProgram = programs
+        let targetName = jquery('#filter-name').val().toLowerCase()
+        let targetBatch = jquery('#filter-batch').val().toLowerCase()
+
+        tempProgram = tempProgram.filter(m => {
+            return m.program_name.toLowerCase().includes(targetName) &&
+                m.batch_name.toLowerCase().includes(targetBatch)
+        })
+
+        programs = tempProgram
     }
 
     onMount(async () => {
@@ -39,9 +59,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="scoring" />
+	<Sidebar activePage="scoring" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -55,10 +75,10 @@
                                 <h5 class="card-header">Choose Program</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Program Name" on:keyup={() => filterAssignment()}>
+                                        <input type="text" class="form-control" id="filter-name" placeholder="Program Name" on:keyup={() => filterProgram()}>
                                     </div>
 									<div class="input-group">
-                                        <select id="filter-batch" class="form-select" on:change={() => filterAssignment()}>
+                                        <select id="filter-batch" class="form-select" on:change={() => filterProgram()}>
                                             <option value="" selected>All Batches</option>
                                             {#each batches as b}
                                             <option value="{b.batch_name}">{b.batch_name}</option>
@@ -71,8 +91,11 @@
                     </div>
                 </div>
                 <div class="row mb-3">
+                    {#if pagination(programs, currentPage, showRowData).length == 0}
+                    {returnNada(currentPage = currentPage-1)}
+                    {/if}
                     {#each pagination(programs, currentPage, 8) as p}
-                    <div class="col-lg-6 col-md-12 mb-3">
+                    <div class="col-lg-6 col-md-12 mb-4">
                         <a href="/super-admin/scoring/list/{p.program_id}" class="rounded bg-white list-group-item list-group-item-action flex-column align-items-start h-100">
                             <div class="d-flex justify-content-between w-100 mb-3">
                                 <p class="mb-0">{p.batch_name}</p>
@@ -91,7 +114,7 @@
                         </a>
                     </div>
                     {/each}
-                    <Pagination bind:currentPage={currentPage} bind:dataList={programs} showRowData=8 position='center'/>
+                    <Pagination bind:currentPage={currentPage} bind:dataList={programs} showRowData=8/>
                 </div>
                 {/if}
             </div>

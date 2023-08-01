@@ -10,6 +10,7 @@
     import jquery from "jquery";
 	import toDate from "../../../../../CustomTime";
 	import pagination from "../../../../../CustomPagination";
+	import returnNada from "../../../../../CustomReturnNada";
 
 	export let data
 
@@ -17,6 +18,8 @@
 	let activities = null
 	let activityType = []
 	let status = false
+
+	let program = null
 
 	let currentPage = 1
 	let showRowData = 10
@@ -27,6 +30,7 @@
 			endpoint:'super-admin/absence/activities',
 			datas:{id:data.params.slug}
 		}).then(response => {
+			program = response.data.program
 			activitiesReal = response.data.data
 			activitiesReal = activitiesReal.sort((a,b) => new Date(a.date) - new Date(b.date))
 			activitiesReal.forEach((element, i) => {
@@ -43,6 +47,7 @@
 	}
 
 	let filterActivities = () => {
+		currentPage = 1
 		activities = activitiesReal
 		let tempActivities = activities
 		let targetName = jquery('#filter-name').val().toLowerCase()
@@ -71,9 +76,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="absence" />
+	<Sidebar activePage="absence" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -86,7 +91,7 @@
 							window.history.back();
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Absences /</span
-					> Fill Absences
+					> {status ? `[${program.batch_name}] ${program.program_name}` : ''}
 				</h4>
 				{#if status}
 				<div class="row">
@@ -126,19 +131,23 @@
 										</tr>
 									</thead>
                                     <tbody>
+										{#if pagination(activities, currentPage, showRowData).length == 0}
+										{returnNada(currentPage = currentPage-1)}
+										{/if}
                                         {#each pagination(activities, currentPage, showRowData) as a, i}
                                         <!-- svelte-ignore a11y-mouse-events-have-key-events -->
                                         <tr id="data-{a.id}" 
-											on:click={() => window.location.href = `/super-admin/absence/fill-absence/list/${a.id}`}
 											on:mouseover={() => jquery(`#data-${a.id}`).css('cursor', 'pointer')}>
-                                            <td>{a.numbering}</td>
+                                            <td>{(showRowData*(currentPage-1)) + i+1}</td>
                                             <td>{a.name}</td>
                                             <td>{a.program_name}</td>
                                             <td>{toDate(a.date)}</td>
 											<td class="text-center">{a.mentees_count < 10 ? '0' + a.mentees_count : a.mentees_count} / {a.mentees_total}</td>
                                             <td>{a.type}</td>
                                             <td class="text-center">
-                                                <button class="btn btn-sm btn-outline-primary">Fill Up</button>
+                                                <button class="btn btn-sm btn-outline-primary" on:click={() => {
+													window.location.href = `/super-admin/absence/fill-absence/list/${a.id}`
+												}}>Fill Up</button>
                                             </td>
                                         </tr>
                                         {/each}
@@ -147,7 +156,7 @@
                             </div>
                         </div>
                     </div>
-					<Pagination bind:currentPage={currentPage} bind:dataList={activities} showRowData={showRowData} position='end'/>
+					<Pagination bind:currentPage={currentPage} bind:dataList={activities} showRowData={showRowData}/>
                 </div>
 				{/if}
 			</div>

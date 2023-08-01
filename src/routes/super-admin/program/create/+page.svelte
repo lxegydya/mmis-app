@@ -12,6 +12,66 @@
     let status = false
 
 	let createProgram = () => {
+		if(jquery('#program-name').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Program Name!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#program-desc').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Description of Program!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#program-category').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Program Categories!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#program-batch').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please choose Batch!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
 		ApiController({
 			method: 'POST',
 			endpoint: `program/create`,
@@ -23,8 +83,20 @@
 			}
 		}).then((response) => {
 			if (response?.data.msg == 'success') {
-				alert('Program Created!');
-				window.location.href = '/super-admin/program';
+				swal({
+					title : "Data Created Successfully!", 
+					text : "Your new Program data has been saved!", 
+					icon : "success",
+					button: {
+						text : 'Okay!',
+						value : true,
+						visible : true,
+						className : 'btn btn-primary',
+						closeModal : true
+					}
+				}).then(() => {
+                    window.location.href = '/super-admin/program'
+                })
 			}
 		});
 	};
@@ -46,9 +118,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="program" />
+	<Sidebar activePage="program" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -58,7 +130,7 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/program'
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Programs /</span
 					> Create
@@ -100,13 +172,12 @@
 										</select>
 									</div>
 								</div>
-								<button
-									type="submit"
-									class="btn btn-primary"
-									on:click={() => {
-										createProgram();
-									}}>Create</button
-								>
+								<button class="btn btn-outline-secondary" on:click={() => {
+                                    window.location.href = '/super-admin/program'
+                                }}>Cancel</button>
+								<button type="submit" class="btn btn-primary" on:click={() => {
+									createProgram()
+								}}>Create</button>
 							</div>
 						</div>
 					</div>

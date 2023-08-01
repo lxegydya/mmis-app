@@ -19,12 +19,56 @@
 			endpoint: `program/${data.params.slug}`
 		}).then((response) => {
 			// @ts-ignore
-			program = response.data.data;
-			console.log(program)
-		});
-	};
+			program = response.data.data
+		})
+	}
 
     let updateProgram = () => {
+		if(jquery('#batch-name').val() == ''){
+            return swal({
+				title: "Opps, you forgot something!",
+				text: "Please insert Batch Name!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#program-desc').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Description of Program!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#program-category').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Program Categories!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
         ApiController({
             method:"POST",
             endpoint:`program/edit`,
@@ -38,8 +82,20 @@
             }
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert('Program Updated!')
-                window.location.href = '/super-admin/program'
+                swal({
+					title : "Data Updated Successfully!", 
+					text : "Your Program data has been updated!", 
+					icon : "success",
+					button: {
+						text : 'Okay!',
+						value : true,
+						visible : true,
+						className : 'btn btn-primary',
+						closeModal : true
+					}
+				}).then(() => {
+                    window.location.href = '/super-admin/program'
+                })
             }
         })
     }
@@ -50,7 +106,6 @@
             endpoint:`batchs`
         }).then(response => {
             batchList = response.data.data
-            status = true
         })
 
 		getProgram();
@@ -63,9 +118,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="program" />
+	<Sidebar activePage="program" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -130,13 +185,12 @@
 										</select>
 									</div>
 								</div>
-								<button
-									type="submit"
-									class="btn btn-primary"
-									on:click={() => {
-										updateProgram();
-									}}>Save Changes</button
-								>
+								<button class="btn btn-outline-secondary" on:click={() => {
+                                    window.location.href = '/super-admin/program'
+                                }}>Cancel</button>
+								<button type="submit" class="btn btn-primary" on:click={() => {
+									updateProgram();
+								}}>Save Changes</button>
 							</div>
 						</div>
 					</div>

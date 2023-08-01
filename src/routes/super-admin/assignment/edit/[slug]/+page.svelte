@@ -38,6 +38,36 @@
 	}
 
     let updateAssignment = () => {
+		if(jquery('#name').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Assignment Title!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
+		if(jquery('#desciption').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Description!",
+				icon: "error",
+				button: {
+					text : 'Okay!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			})
+        }
+
 		ApiController({
             method:"POST",
             endpoint:'assignments/update',
@@ -51,8 +81,20 @@
 			}
         }).then(response => {
             if(response.data.msg == 'success'){
-				alert("Assignment Updated!")
-				window.location.href = '/super-admin/assignment'
+				swal({
+					title : "Data Updated Successfully!", 
+					text : "Your Assignment data has been updated!", 
+					icon : "success",
+					button: {
+						text : 'Okay!',
+						value : true,
+						visible : true,
+						className : 'btn btn-primary',
+						closeModal : true
+					}
+				}).then(() => {
+                    window.location.href = '/super-admin/assignment'
+                })
 			}
         })
     }
@@ -69,9 +111,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-    <Sidebar activePage="assignment" />
+    <Sidebar activePage="assignment" role='admin'/>
     <div class="w-100 d-flex flex-column">
-        <Navbar />
+        <Navbar role='admin'/>
         <div class="wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
                 <h4 class="fw-bold py-3 mb-4">

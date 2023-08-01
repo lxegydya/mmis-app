@@ -29,6 +29,18 @@
             method:"POST",
             endpoint:`mentee/${data.params.slug}/profile/reset-profile-picture`
         }).then(response => {
+            swal({
+                title : "Reset Successfully!", 
+                text : "Your Mentee Profile Picture has been reset!", 
+                icon : "success",
+                button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+            })
             mentee = response?.data.data
         })
     }
@@ -43,11 +55,128 @@
             datas:formdata,
             sendForm:true
         }).then(response => {
+            swal({
+                title : "Changed Successfully!", 
+                text : "Your Mentee Profile Picture has been changed!", 
+                icon : "success",
+                button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+            })
             mentee = response?.data.data
         })
     }
 
     let updateMentee = () => {
+        if(jquery('#id').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert MSIB ID!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#name').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Name!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#university').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert University!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#major').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Major!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#semester').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Semester!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#email').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Email!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#phone').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Phone Number!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
         ApiController({
             method:"POST",
             endpoint:`mentee/edit`,
@@ -64,8 +193,20 @@
             }
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert('Mentee Updated!')
-                window.location.href = '/super-admin/mentee'
+                swal({
+                    title : "Data Updated Successfully!", 
+                    text : "Your Mentee data has been updated!", 
+                    icon : "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/mentee'
+                })
             }
         })
     }
@@ -81,9 +222,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="mentee" />
+	<Sidebar activePage="mentee" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -93,7 +234,7 @@
 						id="nav-back-link"
 						class="text-muted fw-light"
 						on:click={() => {
-							window.history.back();
+							window.location.href = '/super-admin/mentee'
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Mentees /</span
 					> Edit
@@ -189,6 +330,7 @@
                                         </select>
                                     </div>
                                 </div>
+                                <button class="btn btn-outline-secondary" on:click={() => window.history.back() }>Cancel</button>
                                 <button type="submit" class="btn btn-primary" on:click={() => {
                                     updateMentee()
                                 }}>Save Changes</button>

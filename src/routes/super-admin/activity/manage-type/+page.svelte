@@ -7,7 +7,14 @@
     import ApiController from "../../../../ApiController";
 	import { onMount } from "svelte";
 	import jquery from "jquery";
+    import pagination from "../../../../CustomPagination";
+    import Pagination from "../../../../components/pagination.svelte";
+    import returnNada from "../../../../CustomReturnNada";
 
+    let currentPage = 1
+    let showRowData = 10
+
+    let dataReal = null
     let data = null
     let status = false
     let detail = null
@@ -15,11 +22,13 @@
     let modalType = ""
 
     let getType = () => {
+        jquery('#type').val("")
         ApiController({
             method:"GET",
             endpoint:'type'
         }).then(response => {
-            data = response.data.data
+            dataReal = response.data.data
+            data = dataReal
             status = true
         })
     }
@@ -48,6 +57,21 @@
             modalStatus = false
             jquery('#btn-close').click()
         }else{
+            if(jquery('#type').val() == ''){
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert Type!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
             ApiController({
                 method:"POST",
                 endpoint:'type/update',
@@ -57,7 +81,18 @@
                 }
             }).then(response => {
                 if(response.data.msg == 'success'){
-                    alert('Activity Type Updated!')
+                    swal({
+                        title : "Data Updated Successfully!", 
+                        text : "Your Activity Type data has been updated!", 
+                        icon: "success",
+                        button: {
+                            text : 'Okay!',
+                            value : true,
+                            visible : true,
+                            className : 'btn btn-primary',
+                            closeModal : true
+                        }
+                    })
                     getType()
                 }
             })
@@ -70,6 +105,21 @@
             modalStatus = false
             jquery('#btn-close').click()
         }else{
+            if(jquery('#type').val() == ''){
+                return swal({
+                    title: "Oops, you forgot something!",
+                    text: "Please insert Type!",
+                    icon: "error",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                })
+            }
+
             ApiController({
                 method:"POST",
                 endpoint:'type/create',
@@ -78,7 +128,18 @@
                 }
             }).then(response => {
                 if(response.data.msg == 'success'){
-                    alert('Activity Type Created!')
+                    swal({
+                        title : "Data Created Successfully!", 
+                        text : "Your new Activity Type data has been saved!", 
+                        icon: "success",
+                        button: {
+                            text : 'Okay!',
+                            value : true,
+                            visible : true,
+                            className : 'btn btn-primary',
+                            closeModal : true
+                        }
+                    })
                     getType()
                 }
             })
@@ -86,16 +147,62 @@
     }
 
     let deleteType = id => {
-        ApiController({
-            method:"POST",
-            endpoint:'type/delete',
-            datas:{id}
-        }).then(response => {
-            if(response.data.msg == 'success'){
-                alert('Activity Type Deleted!')
-                getType()
+        swal({
+			title: "Are you sure?",
+			text: "Once deleted, you will not be able to recover this data!",
+			icon: "warning",
+			buttons:{
+				cancel : {
+					text : 'No!',
+					value : null,
+					visible : true,
+					className : 'btn btn-outline-secondary',
+					closeModal : true
+				},
+				confirm : {
+					text : 'Yes Sure!',
+					value : true,
+					visible : true,
+					className : 'btn btn-primary',
+					closeModal : true
+				}
+			}
+		}).then((willDelete) => {
+			if (willDelete) {
+                ApiController({
+                    method:"POST",
+                    endpoint:'type/delete',
+                    datas:{id}
+                }).then(response => {
+                    if(response.data.msg == 'success'){
+                        swal("Poof! Data has been deleted!", {
+							icon: "success",
+							button: {
+								text : 'Okay!',
+								value : true,
+								visible : true,
+								className : 'btn btn-primary',
+								closeModal : true
+							}
+						})
+                        getType()
+                    }
+                })
             }
         })
+    }
+
+    let filterType = () => {
+        currentPage = 1
+        data = dataReal
+        let tempData = data
+        let targetType = jquery('#filter-type').val().toLowerCase()
+
+        tempData = tempData.filter(m => {
+            return m.type.toLowerCase().includes(targetType)
+        })
+
+        data = tempData
     }
 
     onMount(async () => {
@@ -109,9 +216,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="activity" />
+	<Sidebar activePage="activity" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -134,7 +241,7 @@
                                 <h5 class="card-header">Type of Activities</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Activity Name">
+                                        <input type="text" class="form-control" id="filter-type" placeholder="Type Name" on:keyup={() => filterType()}>
                                     </div>
                                     <button id="btn-add" type="button" class="btn btn-primary text-nowrap" on:click={() => {
                                         modalType = "add"
@@ -158,9 +265,12 @@
 										</tr>
 									</thead>
                                     <tbody>
-                                    {#each data as d, i}
+                                    {#if pagination(data, currentPage, showRowData).length == 0}
+                                    {returnNada(currentPage = currentPage-1)}
+                                    {/if}
+                                    {#each pagination(data, currentPage, showRowData) as d, i}
                                     <tr>
-                                        <td>{i+1}</td>
+                                        <td>{(showRowData*(currentPage-1)) + i+1}</td>
                                         <td>{d.type}</td>
                                         <td class="text-center">
                                             <button id="btn-edit-{d.id}" class="btn btn-sm btn-outline-warning" on:click={() => {
@@ -177,6 +287,7 @@
                                 </table>
                             </div>
                         </div>
+                        <Pagination bind:dataList={data} bind:currentPage={currentPage} showRowData={showRowData} />
                     </div>
                 </div>
                 <div class="modal fade" id="modalCenter" tabindex="-1" aria-hidden="true">

@@ -6,18 +6,45 @@
     import Footer from "../../../components/footer.svelte";
     import ApiController from "../../../ApiController";
 	import { onMount } from "svelte";
+    import jquery from "jquery";
+    import pagination from "../../../CustomPagination";
+    import Pagination from "../../../components/pagination.svelte";
+	import returnNada from "../../../CustomReturnNada";
 
+    let currentPage = 1
     let status = false
     let data = null
+    let programReal = null
+    let program = null
+    let batches = null
+    let showRowData = 8
 
     let getData = () => {
         ApiController({
             method:"GET",
-            endpoint:'super-admin/absence'
+            endpoint:'absence/list'
         }).then(response => {
             data = response?.data.data
+            programReal = data.programs
+            program = data.programs
+            batches = data.batches
             status = true
         })
+    }
+
+    let filterProgram = () => {
+        currentPage = 1
+        program = programReal
+        let tempProgram = program
+        let targetName = jquery('#filter-name').val().toLowerCase()
+        let targetBatch = jquery('#filter-batch').val().toLowerCase()
+
+        tempProgram = tempProgram.filter(m => {
+            return m.program_name.toLowerCase().includes(targetName) &&
+                m.batch_name.toLowerCase().includes(targetBatch)
+        })
+
+        program = tempProgram
     }
 
     onMount(async () => {
@@ -31,9 +58,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="absence" />
+	<Sidebar activePage="absence" role='admin' />
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -47,14 +74,14 @@
                                 <h5 class="card-header">Choose Program</h5>
                                 <div class="card-header d-flex flex-row align-items-center gap-3">
                                     <div class="input-group input-group-merge">
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Program Name">
+                                        <input type="text" class="form-control" id="filter-name" placeholder="Program Name" on:keyup={() => {filterProgram()}}>
                                     </div>
 									<div class="input-group">
-                                        <select id="filter-category" class="form-select">
+                                        <select id="filter-batch" class="form-select" on:change={() => {filterProgram()}}>
                                             <option value="" selected>All Batches</option>
-                                            <option value="Upcoming">Upcoming</option>
-                                            <option value="Ongoing">Ongoing</option>
-                                            <option value="Finished">Finished</option>
+                                            {#each batches as b}
+                                            <option value="{b.batch_name}">{b.batch_name}</option>
+                                            {/each}
                                         </select>
                                     </div>
                                 </div>
@@ -63,8 +90,11 @@
                     </div>
                 </div>
                 <div class="row">
-                    {#each data as d}
-                    <div class="col-lg-6 col-md-12">
+                    {#if pagination(program, currentPage, showRowData).length == 0}
+                    {returnNada(currentPage = currentPage-1)}
+                    {/if}
+                    {#each pagination(program, currentPage, showRowData) as d}
+                    <div class="col-lg-6 col-md-12 mb-4">
                         <a href="/super-admin/absence/fill-absence/{d.program_id}" class="rounded bg-white list-group-item list-group-item-action flex-column align-items-start h-100">
                             <div class="d-flex justify-content-between w-100">
                                 <p class="mb-3">{d.batch_name}</p>
@@ -90,6 +120,7 @@
                         </a>
                     </div>
                     {/each}
+                    <Pagination bind:currentPage={currentPage} bind:dataList={program} showRowData={showRowData}/>
                 </div>
                 {/if}
             </div>

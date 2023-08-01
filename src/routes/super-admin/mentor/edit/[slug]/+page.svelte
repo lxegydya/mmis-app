@@ -14,6 +14,36 @@
     let status = false
 
     let updateMentor = () => {
+        if(jquery('#fullname').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Mentor Name!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
+        if(jquery('#email').val() == ''){
+            return swal({
+				title: "Oops, you forgot something!",
+				text: "Please insert Mentor Email!",
+				icon: "error",
+				button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+			})
+        }
+
         ApiController({
             method:"POST",
             endpoint:`mentor/edit`,
@@ -27,8 +57,20 @@
             }
         }).then(response => {
             if(response?.data.msg == 'success'){
-                alert('Mentor Updated!')
-                window.location.href = '/super-admin/mentor'
+                swal({
+                    title : "Data Updated Successfully!", 
+                    text : "Your Mentor data has been updated!", 
+                    icon : "success",
+                    button: {
+                        text : 'Okay!',
+                        value : true,
+                        visible : true,
+                        className : 'btn btn-primary',
+                        closeModal : true
+                    }
+                }).then(() => {
+                    window.location.href = '/super-admin/mentor'
+                })
             }
         })
     }
@@ -48,7 +90,18 @@
             method:"POST",
             endpoint:`mentor/${data.params.slug}/profile/reset-profile-picture`
         }).then(response => {
-            console.log(response)
+            swal({
+                title : "Reset Successfully!", 
+                text : "Your Mentor Profile Picture has been reset!", 
+                icon : "success",
+                button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+            })
             mentorData = response?.data.data
         })
     }
@@ -63,6 +116,18 @@
             datas:formdata,
             sendForm:true
         }).then(response => {
+            swal({
+                title : "Changed Successfully!", 
+                text : "Your Mentor Profile Picture has been changed!", 
+                icon : "success",
+                button: {
+                    text : 'Okay!',
+                    value : true,
+                    visible : true,
+                    className : 'btn btn-primary',
+                    closeModal : true
+                }
+            })
             mentorData = response?.data.data
         })
     }
@@ -78,9 +143,9 @@
 </svelte:head>
 
 <div class="d-flex h-100">
-	<Sidebar activePage="mentor" />
+	<Sidebar activePage="mentor" role='admin'/>
 	<div class="w-100 d-flex flex-column">
-		<Navbar />
+		<Navbar role='admin'/>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<h4 class="fw-bold py-3 mb-4">
@@ -93,14 +158,19 @@
 							window.history.back();
 						}}
 						on:mouseover={() => jquery('#nav-back-link').css('cursor', 'pointer')}>Mentors /</span
-					> Create
+					> Edit
 				</h4>
                 {#if status}
 				<div class="row">
 					<div class="col-md-6">
 						<div class="card mb-4">
-							<div class="card-header d-flex justify-content-between align-items-center">
-								<h5 class="mb-0">Edit Mentor</h5>
+							<div class="d-flex justify-content-between align-items-center">
+                                <div class="card-header pb-0">
+                                    <h5 class="mb-0">Edit Mentor</h5>
+                                </div>
+                                <div class="card-header pb-0">
+                                    <a href="/super-admin/mentor/password/{mentorData.id}" class="btn btn-sm btn-outline-primary">Reset Password</a>
+                                </div>
 							</div>
 							<div class="card-body">
                                 <div class="d-flex align-items-start align-items-sm-center gap-4 mb-3">
@@ -151,6 +221,9 @@
                                         <option value="Non-Active" selected={mentorData.status == 'Non-Active' ? true : false}>Non-Active</option>
                                     </select>
                                 </div>
+                                <button class="btn btn-outline-secondary" on:click={() => {
+                                    window.location.href = '/super-admin/mentor'
+                                }}>Cancel</button>
                                 <button type="submit" class="btn btn-primary" on:click={() => {
                                     updateMentor()
                                 }}>Save Changes</button>
