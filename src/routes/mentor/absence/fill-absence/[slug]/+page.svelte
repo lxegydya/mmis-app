@@ -12,6 +12,7 @@
 	import pagination from "../../../../../CustomPagination";
 	import returnNada from "../../../../../CustomReturnNada";
 	import Cookie from 'js-cookie'
+	import axios from "axios";
 
 	export let data
 
@@ -69,6 +70,26 @@
 		activities = tempActivities
 	}
 
+	let toExcel = async () => {
+		try{
+			const response = await axios.get(`http://127.0.0.1/mmis-api/public/api/absence/${data.params.slug}/export?mentor_id=${Cookie.get('token')}`, {
+				responseType: 'blob'
+			})
+
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const a = document.createElement('a');
+
+			a.href = url;
+			a.download = `[Absence] ${program.program_name.replace(/[^\w.-]/g, '_').trim()} - ${program.batch_name}.xlsx`;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);
+		}catch(err){
+			console.log(err)
+		}
+	}
+
     onMount(async () => {
 		let mentor_id = Cookie.get('token')
         getActivities(mentor_id)
@@ -120,6 +141,9 @@
 											{/each}
                                         </select>
                                     </div>
+									<button type="button" class="btn btn-outline-secondary text-nowrap" on:click={toExcel}>
+										<span class="tf-icons bx bxs-download me-1"></span>To Excel
+									</button>
                                 </div>
                             </div>
 							<div class="table-responsive text-nowrap">
