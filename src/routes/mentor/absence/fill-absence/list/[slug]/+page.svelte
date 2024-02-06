@@ -29,6 +29,7 @@
 		}).then(response => {
 			program = response.data.program
 			listData = response.data.data
+			console.log(listData)
 			status = true
 		})
 	}
@@ -142,6 +143,7 @@
 											<th>Mentee's Name</th>
 											<th class="text-center">Status</th>
 											<th class="text-center">Present</th>
+											<th class="text-center">Information</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -152,7 +154,7 @@
 											<td class="text-center {m.status == 'Active' ? 'text-success' : 'text-danger'}">{m.status}</td>
 											<td class="text-center">
 												<input class="form-check-input" type="checkbox" id="{m.id}" checked={m.present ? true : false} on:click={() => {
-													m.present = jquery(`#${m.id}`).is(':checked')
+													m.present = !m.present
 
 													if(!absenceList.includes(m)){
 														absenceList.push(m);
@@ -164,8 +166,28 @@
 														absenceList[indexTarget].present = m.present
 													}
 
+													console.log(absenceList)
+
 													// jquery(`#${m.id}`).attr("disabled", true)
 													// absence(m)
+												}}>
+											</td>
+											<td class="text-center">
+												<input type="text" class="form-control" id="info-{m.id}" 
+													value="{m.information == null ? '' : m.information}" on:change={(evt) => {
+													m.information = evt.target.value
+
+													if(!absenceList.includes(m)){
+														absenceList.push(m);
+													}else{
+														let indexTarget = absenceList.findIndex(ab => {
+															return ab.id == m.id
+														})
+
+														absenceList[indexTarget].information = m.information
+													}
+
+													console.log(absenceList)
 												}}>
 											</td>
 										</tr>
