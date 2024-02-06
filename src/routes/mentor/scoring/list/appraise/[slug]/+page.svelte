@@ -19,6 +19,7 @@
 	let menteesReal = null
 	let mentees = null
 	let status = false
+	let isShow = false
 
 	let scoreList = []
 
@@ -65,18 +66,23 @@
 			}
 		}).then(response => {
 			if(response.data.msg == 'success'){
-				swal({
-                    title : "Data Saved Successfully!", 
-                    text : "Your Mentee Score has been recorded!", 
-                    icon: "success",
-                    button: {
-                        text : 'Okay!',
-                        value : true,
-                        visible : true,
-                        className : 'btn btn-primary',
-                        closeModal : true
-                    }
-                })
+				// swal({
+                //     title : "Data Saved Successfully!", 
+                //     text : "Your Mentee Score has been recorded!", 
+                //     icon: "success",
+                //     button: {
+                //         text : 'Okay!',
+                //         value : true,
+                //         visible : true,
+                //         className : 'btn btn-primary',
+                //         closeModal : true
+                //     }
+                // })
+				isShow = true
+				setTimeout(() => {
+					console.log('aloo')
+					isShow = false
+				}, 2000)
 				getListData()
 				buttonVisibility(m)
 			}
@@ -97,6 +103,16 @@
 	<Sidebar activePage="scoring" role='mentor'/>
 	<div class="w-100 d-flex flex-column">
 		<Navbar role='mentor'/>
+		<div class="bs-toast toast toast-placement-ex m-2 fade bg-success top-0 end-0 {isShow ? 'show' : 'hide'}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
+			<div class="toast-header">
+			  	<i class="bx bx-bell me-2"></i>
+			  	<div class="me-auto fw-medium">Success!</div>
+			  	<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+			<div class="toast-body">
+				Score updated!
+			</div>
+		</div>
 		<div class="wrapper">
 			<div class="container-xxl flex-grow-1 container-p-y">
 				<div class="d-flex flex-row justify-content-between">
