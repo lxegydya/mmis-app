@@ -137,6 +137,7 @@
 											<th>Mentee's Name</th>
 											<th class="text-center">Status</th>
 											<th class="text-center">Present</th>
+											<th class="text-center">Information</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -163,6 +164,24 @@
 
 													// jquery(`#${m.id}`).attr("disabled", true)
 													// absence(m)
+												}}>
+											</td>
+											<td class="text-center">
+												<input type="text" class="form-control" id="info-{m.id}" 
+													value="{m.information == null ? '' : m.information}" on:change={(evt) => {
+													m.information = evt.target.value
+
+													if(!absenceList.includes(m)){
+														absenceList.push(m);
+													}else{
+														let indexTarget = absenceList.findIndex(ab => {
+															return ab.id == m.id
+														})
+
+														absenceList[indexTarget].information = m.information
+													}
+
+													console.log(absenceList)
 												}}>
 											</td>
 										</tr>
