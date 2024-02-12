@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const startUrl = "http://127.0.0.1/mmis-api/public/api/"
+const startUrl = "https://mmas-api.learningx.com/api/"
 
 // @ts-ignore
 const ApiController = async info => {
