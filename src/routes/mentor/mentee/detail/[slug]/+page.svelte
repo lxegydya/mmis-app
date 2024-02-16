@@ -89,7 +89,8 @@
 				absence_list : [{
                     id: mentee.id,
                     absence_id: data.absence_id, 
-                    present: data.present
+                    present: data.present,
+                    information: data.information
                 }] 
 			}
 		}).then(response => {
@@ -112,6 +113,8 @@
                 checkboxs.forEach(elm => {
                     jquery(`#${elm}`).removeAttr('disabled')
                 })
+
+                document.getElementById(`absence-info-${data.assignment_id}`).disabled = false
 			}
 		})
 	}
@@ -271,24 +274,42 @@
 								<table class="table table-hover">
 									<thead>
 										<tr class="text-nowrap">
-											<th>No</th>
+											<th class="text-center">No</th>
 											<th>Activity Name</th>
 											<th>Date</th>
-											<th>Absence</th>
+											<th class="text-center">Absence</th>
+                                            <th>Information</th>
 										</tr>
 									</thead>
 									<tbody>
                                     {#each mentee.absence_data as d, i}
                                     <tr>
-                                        <td>{i + 1}</td>
+                                        <td class="text-center">{i + 1}</td>
                                         <td>{d.name}</td>
                                         <td>{d.date}</td>
                                         <td class="text-center">
                                             <input disabled={!isHaveAccess}
                                             class="form-check-input" type="checkbox" id="absence-{d.activity_id}" checked={d.present ? true : false} on:click={() => {
                                                 d.present = !d.present
+
+                                                if(d.present){
+                                                    document.getElementById(`absence-info-${d.assignment_id}`).disabled = true
+                                                    document.getElementById(`absence-info-${d.assignment_id}`).value = ''
+                                                    d.information = ''
+                                                }else{
+                                                    document.getElementById(`absence-info-${d.assignment_id}`).disabled = false
+                                                }
+
                                                 absence(mentee.absence_data.map((a) => a = `absence-${a.activity_id}`), d)
                                             }}>
+                                        </td>
+                                        <td>
+                                            <input class="form-control" type="text" id="absence-info-{d.assignment_id}" value="{d.information}"
+                                                on:change={(evt) => {
+                                                    d.present = false
+                                                    d.information = evt.target.value
+                                                    absence(mentee.absence_data.map((a) => a = `absence-${a.activity_id}`), d)
+                                                }}>
                                         </td>
                                     </tr>
                                     {/each}
@@ -306,7 +327,7 @@
 								<table class="table table-hover">
 									<thead>
 										<tr class="text-nowrap">
-											<th>No</th>
+											<th class="text-center">No</th>
 											<th>Assignment Title</th>
 											<th>Deadline</th>
 											<th>Score</th>
@@ -315,7 +336,7 @@
 									<tbody>
                                     {#each mentee.scoring_data as d, i}
                                     <tr>
-                                        <td>{i + 1}</td>
+                                        <td class="text-center">{i + 1}</td>
                                         <td>{d.name}</td>
                                         <td>{d.deadline}</td>
                                         <td style="width: 225px; min-width: 175px;">

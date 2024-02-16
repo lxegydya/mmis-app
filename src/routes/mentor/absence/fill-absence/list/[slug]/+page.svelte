@@ -56,10 +56,17 @@
                         closeModal : true
                     }
                 })
+
+				absenceList.forEach((d, i) => {
+					document.getElementById(`info-${d.id}`).disabled = false
+				})
+
 				absenceList = []
+
 				listData.groups.forEach(g => {
 					jquery(`#all-present-${g.id}`).html('All Present')
-				});
+				})
+				
 				getListData(Cookie.get('token'))
 			}
 		})
@@ -156,6 +163,14 @@
 												<input class="form-check-input" type="checkbox" id="{m.id}" checked={m.present ? true : false} on:click={() => {
 													m.present = !m.present
 
+													if(m.present){
+														document.getElementById(`info-${m.id}`).disabled = true
+														document.getElementById(`info-${m.id}`).value = ''
+														m.information = ''
+													}else{
+														document.getElementById(`info-${m.id}`).disabled = false
+													}
+
 													if(!absenceList.includes(m)){
 														absenceList.push(m);
 													}else{
@@ -176,6 +191,10 @@
 												<input type="text" class="form-control" id="info-{m.id}" 
 													value="{m.information == null ? '' : m.information}" on:change={(evt) => {
 													m.information = evt.target.value
+													if(m.information){
+														document.getElementById(`${m.id}`).checked = false
+														m.present = false
+													}
 
 													if(!absenceList.includes(m)){
 														absenceList.push(m);
