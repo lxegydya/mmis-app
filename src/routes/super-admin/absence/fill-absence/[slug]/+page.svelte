@@ -68,7 +68,7 @@
 
 	let toExcel = async () => {
 		try{
-			const response = await axios.get(`http://127.0.0.1/mmis-api/public/api/absence/${data.params.slug}/export`, {
+			const response = await axios.get(`https://mmas-api.learningx.com/api/absence/${data.params.slug}/export`, {
 				responseType: 'blob'
 			})
 
