@@ -56,7 +56,7 @@
 	let toExcel = async () => {
 		try{
 			// Local
-			// const response = await axios.get(`http://127.0.0.1:8000/public/api/scoring/${data.params.slug}/export`, {
+			// const response = await axios.get(`http://127.0.0.1:8000/api/scoring/${data.params.slug}/export`, {
 
 			// Hosting API
 			const response = await axios.get(`https://mmas-api.learningx.com/api/scoring/${data.params.slug}/export`, {

@@ -66,18 +66,6 @@
 			}
 		}).then(response => {
 			if(response.data.msg == 'success'){
-				// swal({
-                //     title : "Data Saved Successfully!", 
-                //     text : "Your Mentee Score has been recorded!", 
-                //     icon: "success",
-                //     button: {
-                //         text : 'Okay!',
-                //         value : true,
-                //         visible : true,
-                //         className : 'btn btn-primary',
-                //         closeModal : true
-                //     }
-                // })
 				isShow = true
 				setTimeout(() => {
 					console.log('aloo')
@@ -170,10 +158,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										{#if pagination(mentees, currentPage, showRowData).length == 0}
-										{returnNada(currentPage = currentPage-1)}
-										{/if}
-										{#each pagination(mentees, currentPage, showRowData) as m, i}
+										{#each mentees as m, i}
 										<!-- svelte-ignore a11y-mouse-events-have-key-events -->
 										<tr id="data-{m.id}" on:mouseover={() => jquery(`#data-${m.id}`).css('cursor', 'pointer')}>
 											<td class="text-center" style="width: 50px; min-width: 35px;">{(showRowData*(currentPage-1)) + i+1}</td>
@@ -202,7 +187,6 @@
                             </div>
                         </div>
                     </div>
-					<Pagination bind:currentPage={currentPage} bind:dataList={mentees} showRowData={showRowData}/>
                 </div>
 				{/if}
 			</div>
